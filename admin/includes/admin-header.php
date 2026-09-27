@@ -15,7 +15,7 @@ $pending_design_requests_count = (int)(fetch_one("SELECT COUNT(*) c FROM design_
 
 $nav_groups = [
     'Main' => [
-        ['key' => 'index',      'label' => 'Dashboard',        'icon' => 'fa-grid-2',       'href' => ADMIN_URL . '/index.php'],
+        ['key' => 'index',      'label' => 'Dashboard',        'icon' => 'fa-table-cells-large',       'href' => ADMIN_URL . '/index.php'],
         ['key' => 'analytics',  'label' => 'Analytics',        'icon' => 'fa-chart-line',   'href' => ADMIN_URL . '/pages/analytics.php'],
         ['key' => 'ai-seo',     'label' => 'AI SEO',           'icon' => 'fa-robot',        'href' => ADMIN_URL . '/pages/ai-seo.php'],
         ['key' => 'seo-insight', 'label' => 'SEO Insight',     'icon' => 'fa-magnifying-glass', 'href' => ADMIN_URL . '/pages/seo-insight.php'],
@@ -60,55 +60,15 @@ $nav_groups = [
 <title><?= h($page_title ?? 'Admin') ?> · BuiltCo Sports Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-        colors: {
-          ink: '#0d1321',
-          panel: '#141b2d',
-          brand: { DEFAULT: '#059669', dark: '#047857', light: '#d1fae5' },
-        },
-      },
-    },
-  };
-</script>
-<style type="text/tailwindcss">
-  @layer components {
-    .f-label { @apply block text-sm font-semibold text-slate-700 mb-1.5; }
-    .f-hint  { @apply text-xs text-slate-400 mt-1; }
-    .f-input {
-      @apply w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800
-             placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition;
-    }
-    .f-textarea { @apply f-input resize-y; }
-    .f-select { @apply f-input pr-8 bg-white; }
-
-    .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold px-4 py-2.5 transition; }
-    .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark shadow-sm; }
-    .btn-outline { @apply btn border border-slate-300 text-slate-600 hover:bg-slate-50; }
-    .btn-danger-outline { @apply btn border border-red-200 text-red-600 hover:bg-red-50; }
-    .btn-sm { @apply text-xs px-3 py-1.5; }
-
-    .card { @apply bg-white rounded-2xl border border-slate-200 shadow-sm; }
-
-    .badge { @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold; }
-    .badge-active { @apply badge bg-emerald-100 text-emerald-700; }
-    .badge-inactive { @apply badge bg-slate-100 text-slate-500; }
-  }
-  .seo-count-ok   { color: #059669; }
-  .seo-count-warn { color: #d97706; }
-  .seo-count-bad  { color: #dc2626; }
-</style>
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/admin/assets/css/admin.css?v=<?= @filemtime(__DIR__ . '/../assets/css/admin.css') ?>">
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased">
 <div class="flex min-h-screen">
 
   <!-- Sidebar -->
-  <aside class="w-64 shrink-0 bg-ink text-slate-300 flex flex-col fixed inset-y-0 left-0 z-30">
+  <div class="admin-backdrop hidden fixed inset-0 bg-black/40 z-20 lg:hidden" onclick="document.body.classList.remove('admin-nav-open')"></div>
+  <aside class="admin-sidebar w-64 shrink-0 bg-ink text-slate-300 flex flex-col fixed inset-y-0 left-0 z-30">
     <div class="h-16 flex items-center gap-2 px-5 border-b border-white/10">
       <div class="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-extrabold">B</div>
       <div>
@@ -142,11 +102,12 @@ $nav_groups = [
   </aside>
 
   <!-- Main -->
-  <div class="flex-1 ml-64 flex flex-col min-h-screen">
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
-      <div>
+  <div class="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0">
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10 gap-3">
+      <button type="button" class="lg:hidden w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600" onclick="document.body.classList.toggle('admin-nav-open')" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+      <div class="flex-1 min-w-0">
         <p class="text-[11px] text-slate-400 font-medium mb-0.5">Dashboard <?= $current_page !== 'index' ? '/ ' . h($page_title ?? '') : '' ?></p>
-        <h1 class="text-lg font-bold text-slate-800"><?= h($page_title ?? '') ?></h1>
+        <h1 class="text-lg font-bold text-slate-800 truncate"><?= h($page_title ?? '') ?></h1>
       </div>
       <div class="flex items-center gap-4">
         <a href="<?= SITE_URL ?>/" target="_blank" class="btn-outline btn-sm"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Site</a>
@@ -162,7 +123,7 @@ $nav_groups = [
       </div>
     </header>
 
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-4 sm:p-6">
       <?php $success = get_flash('success'); $error = get_flash('error'); ?>
       <?php if ($success): ?>
       <div data-flash class="mb-5 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-3 text-sm font-medium">

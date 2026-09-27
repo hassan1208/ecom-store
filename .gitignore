@@ -6,3 +6,5 @@ assets/uploads/design-requests/*
 assets/uploads/design-vectors/*
 !assets/uploads/**/.gitkeep
 .DS_Store
+node_modules/
+assets/uploads/customizer-logos/*

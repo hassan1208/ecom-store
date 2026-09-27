@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $page_title = $edit ? 'Edit Post' : 'New Post';
 include __DIR__ . '/../includes/admin-header.php';
 ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/vendor/quill/quill.snow.css">
 <style>.ql-editor{min-height:320px;font-size:14px}.ql-toolbar.ql-snow{border-color:#cbd5e1;border-radius:8px 8px 0 0}.ql-container.ql-snow{border-color:#cbd5e1;border-radius:0 0 8px 8px}</style>
 
 <a href="blog.php" class="text-sm font-semibold text-slate-400 hover:text-slate-600 inline-block mb-5"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Blog Posts</a>
@@ -142,7 +142,7 @@ include __DIR__ . '/../includes/admin-header.php';
   </div>
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="<?= SITE_URL ?>/assets/vendor/quill/quill.min.js"></script>
 <script>
 function blogImageHandler() {
   const input = document.createElement('input');

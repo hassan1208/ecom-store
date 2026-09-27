@@ -1003,39 +1003,55 @@ function get_homepage_categories() {
 
 function render_product_card($p, $badge = null) {
     $badges = ['new' => ['New', 'bg-emerald-500'], 'featured' => ['Featured', 'bg-ignite'], 'coming_soon' => ['Coming Soon', 'bg-slate-700']];
-    $thumb = fetch_one("SELECT image_path, alt_text FROM product_images WHERE product_id=? ORDER BY is_primary DESC, sort_order ASC LIMIT 1", 'i', $p['id']);
+    $imgs = fetch_all("SELECT image_path, alt_text FROM product_images WHERE product_id=? ORDER BY is_primary DESC, sort_order ASC LIMIT 2", 'i', $p['id']);
+    $thumb = $imgs[0] ?? null;
+    $hover = $imgs[1] ?? null;
     $in_wishlist = is_in_wishlist($p['id']);
+    $rating = get_product_rating_summary($p['id']);
+    $price = $p['sale_price'] ?: $p['base_price'];
+    $off = ($p['sale_price'] && $p['base_price'] > 0) ? (int)round(100 - ($p['sale_price'] / $p['base_price']) * 100) : 0;
+    $model = !empty($p['is_customizable']) ? customizer_model_for($p) : null;
     ob_start(); ?>
-    <div class="group relative">
-      <form method="POST" action="<?= url('wishlist-toggle') ?>" class="absolute top-2 right-2 z-10">
+    <article class="product-card group relative" data-reveal>
+      <form method="POST" action="<?= url('wishlist-toggle') ?>" class="absolute top-3 right-3 z-20">
         <?= csrf_field() ?>
         <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
         <input type="hidden" name="redirect" value="<?= h(current_full_url()) ?>">
-        <button type="submit" title="<?= $in_wishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>" class="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center hover:scale-110 transition">
-          <i class="fa-<?= $in_wishlist ? 'solid' : 'regular' ?> fa-heart text-sm <?= $in_wishlist ? 'text-ignite' : 'text-slate-400' ?>"></i>
+        <button type="submit" aria-label="<?= $in_wishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>" title="<?= $in_wishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center hover:scale-110 transition">
+          <i class="fa-<?= $in_wishlist ? 'solid' : 'regular' ?> fa-heart text-sm <?= $in_wishlist ? 'text-ignite' : 'text-slate-500' ?>"></i>
         </button>
       </form>
       <a href="<?= url('product/' . $p['slug']) ?>" class="block">
-        <div class="tilt-3d aspect-square rounded-xl overflow-hidden bg-slate-100 mb-3 relative">
+        <div class="tilt-3d product-card-media aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 mb-4 relative">
           <?php if ($thumb): ?>
-          <img src="<?= UPLOAD_URL . h($thumb['image_path']) ?>" alt="<?= h($thumb['alt_text'] ?: $p['name']) ?>" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <img src="<?= UPLOAD_URL . h($thumb['image_path']) ?>" alt="<?= h($thumb['alt_text'] ?: $p['name']) ?>" loading="lazy" decoding="async" width="600" height="750" class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105<?= $hover ? ' group-hover:opacity-0' : '' ?>">
+          <?php if ($hover): ?><img src="<?= UPLOAD_URL . h($hover['image_path']) ?>" alt="" aria-hidden="true" loading="lazy" decoding="async" width="600" height="750" class="absolute inset-0 w-full h-full object-cover opacity-0 transition duration-700 group-hover:opacity-100 group-hover:scale-105"><?php endif; ?>
           <?php else: ?>
-          <div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fa-solid fa-image text-2xl"></i></div>
+          <div class="absolute inset-0 flex items-center justify-center text-slate-300"><i class="fa-solid fa-image text-3xl"></i></div>
           <?php endif; ?>
-          <?php if ($badge && isset($badges[$badge])): ?>
-          <span class="absolute top-2 left-2 <?= $badges[$badge][1] ?> text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase"><?= $badges[$badge][0] ?></span>
+          <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
+            <?php if ($badge && isset($badges[$badge])): ?>
+            <span class="<?= $badges[$badge][1] ?> text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"><?= $badges[$badge][0] ?></span>
+            <?php endif; ?>
+            <?php if ($off > 0): ?><span class="bg-ink text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">-<?= $off ?>%</span><?php endif; ?>
+          </div>
+          <?php if ($model && $model !== 'flat'): ?>
+          <span class="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 bg-white/90 backdrop-blur text-ink text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"><i class="fa-solid fa-cube text-ignite"></i> 3D Customizable</span>
           <?php endif; ?>
+          <span class="product-card-cta absolute bottom-3 right-3 z-10 w-10 h-10 rounded-full bg-ignite text-white flex items-center justify-center shadow-glow"><i class="fa-solid fa-arrow-right -rotate-45 group-hover:rotate-0 transition duration-300"></i></span>
         </div>
-        <h3 class="font-medium text-sm text-slate-800 group-hover:text-ignite transition truncate"><?= h($p['name']) ?></h3>
-        <div class="text-sm font-semibold mt-1">
-          <?php if ($p['sale_price']): ?>
-          <?= format_price($p['sale_price']) ?> <span class="text-xs text-slate-400 line-through ml-1"><?= format_price($p['base_price']) ?></span>
-          <?php else: ?>
-          <?= format_price($p['base_price']) ?>
+        <h3 class="font-display font-semibold text-[15px] leading-snug text-ink group-hover:text-ignite transition line-clamp-2"><?= h($p['name']) ?></h3>
+        <div class="flex items-center justify-between gap-2 mt-1.5">
+          <div class="text-sm font-bold text-ink">
+            <?= format_price($price) ?>
+            <?php if ($p['sale_price']): ?><span class="text-xs font-medium text-slate-400 line-through ml-1"><?= format_price($p['base_price']) ?></span><?php endif; ?>
+          </div>
+          <?php if ($rating['count'] > 0): ?>
+          <div class="text-xs text-slate-500 flex items-center gap-1" aria-label="Rated <?= $rating['avg'] ?> out of 5"><i class="fa-solid fa-star text-amber-400"></i><?= $rating['avg'] ?> <span class="text-slate-400">(<?= $rating['count'] ?>)</span></div>
           <?php endif; ?>
         </div>
       </a>
-    </div>
+    </article>
     <?php return ob_get_clean();
 }
 
@@ -1118,6 +1134,195 @@ function get_footer_columns_full() {
 
 function get_nav_categories() {
     return fetch_all("SELECT * FROM categories WHERE parent_id IS NULL AND show_in_nav=1 AND status='active' ORDER BY nav_order ASC, name ASC");
+}
+
+
+// ============================================================
+// DESIGN SYSTEM / ASSETS
+// ============================================================
+// "#ff4d2e" → "255 77 46" (space-separated, for rgb(var(--x) / alpha) in CSS).
+function hex_to_rgb_triplet($hex, $fallback = '255 77 46') {
+    $hex = ltrim(trim((string)$hex), '#');
+    if (strlen($hex) === 3) $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    if (!preg_match('/^[0-9a-f]{6}$/i', $hex)) return $fallback;
+    return hexdec(substr($hex, 0, 2)) . ' ' . hexdec(substr($hex, 2, 2)) . ' ' . hexdec(substr($hex, 4, 2));
+}
+
+// Versioned URL for a local static file, so browsers cache it for a year but
+// pick up changes immediately after a deploy.
+function asset_url($path) {
+    $path = ltrim($path, '/');
+    $file = __DIR__ . '/../' . $path;
+    return SITE_URL . '/' . $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+}
+
+// ============================================================
+// SEO HELPERS
+// ============================================================
+// Prints a JSON-LD block. JSON_HEX_TAG keeps "</script>" in any value from
+// breaking out of the tag; nulls/empty values are dropped for cleaner markup.
+function json_ld($data) {
+    $clean = function ($v) use (&$clean) {
+        if (!is_array($v)) return $v;
+        $out = [];
+        foreach ($v as $k => $item) {
+            $item = $clean($item);
+            if ($item === null || $item === '' || $item === []) continue;
+            $out[$k] = $item;
+        }
+        return array_keys($out) === range(0, count($out) - 1) ? array_values($out) : $out;
+    };
+    return '<script type="application/ld+json">' . json_encode($clean($data), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) . "</script>\n";
+}
+
+// Plain-text, whitespace-collapsed, word-boundary-truncated meta text.
+function meta_text($text, $max = 160) {
+    $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$text), ENT_QUOTES, 'UTF-8')));
+    if (mb_strlen($text) <= $max) return $text;
+    $cut = mb_substr($text, 0, $max - 1);
+    $space = mb_strrpos($cut, ' ');
+    if ($space !== false && $space > $max * 0.6) $cut = mb_substr($cut, 0, $space);
+    return rtrim($cut, " ,.;:-") . '…';
+}
+
+// Canonical URL for the current page without tracking / sorting parameters,
+// so filtered and sorted variants consolidate onto one indexable URL.
+function clean_canonical($keep = ['page']) {
+    $path = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+    $query = [];
+    foreach ($keep as $k) if (isset($_GET[$k]) && $_GET[$k] !== '' && !($k === 'page' && (int)$_GET[$k] <= 1)) $query[$k] = $_GET[$k];
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $path . ($query ? '?' . http_build_query($query) : '');
+}
+
+function product_brand($product) {
+    return ($product['brand'] ?? '') ?: (setting('seo_default_brand', '') ?: setting('site_name', 'BuiltCo Sports'));
+}
+
+// ============================================================
+// 3D DESIGN STUDIO
+// ============================================================
+// Which 3D model the studio shows for a product: explicit admin choice, else
+// detected from the product/category name (jersey → shirt, ball → sphere,
+// everything else → a 3D card of the real product photo).
+function customizer_model_for($product, $category_name = null) {
+    $model = $product['customizer_model'] ?? 'auto';
+    if (in_array($model, ['jersey', 'ball', 'flat'], true)) return $model;
+    if ($category_name === null && !empty($product['category_id'])) {
+        static $cat_names = [];
+        if (!isset($cat_names[$product['category_id']])) {
+            $cat_names[$product['category_id']] = fetch_one("SELECT name FROM categories WHERE id=?", 'i', $product['category_id'])['name'] ?? '';
+        }
+        $category_name = $cat_names[$product['category_id']];
+    }
+    $name = strtolower(($product['name'] ?? '') . ' ' . ($product['tags'] ?? ''));
+    if (preg_match('/\b(jersey|kit|uniform|shirt|t-shirt|tee|bibs?|singlet|vest|hoodie|polo|top)\b/', $name)) return 'jersey';
+    if (preg_match('/\b(glove|gloves|helmet|bat|bag|belt|pad|pads|band|bands|dumbbell|shoe|boot)s?\b/', $name)) return 'flat';
+    if (preg_match('/\b(ball|football|soccer|futsal|volleyball|basketball|rugby|netball|handball)\b/', $name)) return 'ball';
+    if (preg_match('/\b(uniform|jersey|kit|apparel|clothing|wear)\b/', strtolower((string)$category_name))) return 'jersey';
+    return 'flat';
+}
+
+function valid_hex_color($v) {
+    $v = trim((string)$v);
+    return preg_match('/^#[0-9a-f]{6}$/i', $v) ? strtolower($v) : '';
+}
+
+// Upload paths coming back from the browser must point at a file the
+// customizer endpoint itself created — never an arbitrary path.
+function valid_custom_upload_path($v) {
+    $v = trim((string)$v);
+    return preg_match('#^customizations/custom-[a-f0-9]{16}\.png$#', $v) ? $v : '';
+}
+
+// Normalizes the design spec posted by the 3D studio (single item or team).
+function sanitize_customization_spec($d) {
+    if (!is_array($d)) $d = [];
+    $patterns = ['none', 'stripes', 'pinstripes', 'hoops', 'sash', 'halves', 'gradient', 'chevron', 'halftone', 'camo', 'panels'];
+    $extra = [];
+    foreach ((array)($d['extra_texts'] ?? []) as $t) {
+        if (!is_array($t)) continue;
+        $txt = mb_substr(sanitize($t['text'] ?? ''), 0, 24);
+        if ($txt === '') continue;
+        $extra[] = ['side' => ($t['side'] ?? '') === 'back' ? 'back' : 'front', 'text' => $txt];
+        if (count($extra) >= 10) break;
+    }
+    $vectors = [];
+    foreach ((array)($d['logo_vectors'] ?? []) as $v) {
+        if (!is_array($v)) continue;
+        $path = sanitize($v['vector_path'] ?? '');
+        $vectors[] = [
+            'vector_path'        => preg_match('#^customizer-logos/vectors/vec-[a-f0-9]{16}\.svg$#', $path) ? $path : null,
+            'is_original_vector' => !empty($v['is_original_vector']),
+            'side'               => ($v['side'] ?? '') === 'back' ? 'back' : 'front',
+        ];
+        if (count($vectors) >= 12) break;
+    }
+    return [
+        'model'                => in_array($d['model'] ?? '', ['jersey', 'ball', 'flat'], true) ? $d['model'] : '',
+        'color'                => mb_substr(sanitize($d['color'] ?? ''), 0, 60),
+        'garment_color'        => valid_hex_color($d['garment_color'] ?? ''),
+        'base_color'           => valid_hex_color($d['base_color'] ?? ''),
+        'sleeve_color'         => valid_hex_color($d['sleeve_color'] ?? ''),
+        'trim_color'           => valid_hex_color($d['trim_color'] ?? ''),
+        'pattern'              => in_array($d['pattern'] ?? '', $patterns, true) ? $d['pattern'] : 'none',
+        'pattern_color'        => valid_hex_color($d['pattern_color'] ?? ''),
+        'font'                 => mb_substr(sanitize($d['font'] ?? ''), 0, 80),
+        'text_color'           => valid_hex_color($d['text_color'] ?? ''),
+        'outline_color'        => valid_hex_color($d['outline_color'] ?? ''),
+        'outline_width'        => max(0, min(12, (int)($d['outline_width'] ?? 0))),
+        'name_arc'             => max(0, min(100, (int)($d['name_arc'] ?? 0))),
+        'front_logo_count'     => max(0, (int)($d['front_logo_count'] ?? 0)),
+        'back_logo_count'      => max(0, (int)($d['back_logo_count'] ?? 0)),
+        'logo_vectors'         => $vectors,
+        'front_number_enabled' => !empty($d['front_number_enabled']),
+        'back_name_size'       => (int)($d['back_name_size'] ?? 0),
+        'back_number_size'     => (int)($d['back_number_size'] ?? 0),
+        'extra_texts'          => $extra,
+        'notes'                => mb_substr(sanitize($d['notes'] ?? ''), 0, 500),
+        'design_front_path'    => valid_custom_upload_path($d['design_front_path'] ?? ''),
+        'design_back_path'     => valid_custom_upload_path($d['design_back_path'] ?? ''),
+        'render_front_path'    => valid_custom_upload_path($d['render_front_path'] ?? ''),
+        'render_back_path'     => valid_custom_upload_path($d['render_back_path'] ?? ''),
+        'email'                => sanitize($d['email'] ?? ''),
+        'whatsapp'             => mb_substr(sanitize($d['whatsapp'] ?? ''), 0, 30),
+    ];
+}
+
+// Human-readable lines describing a saved customization (cart, admin, emails).
+function customization_detail_lines($cz) {
+    if (!is_array($cz)) return [];
+    $lines = [];
+    $labels = ['jersey' => '3D Jersey', 'ball' => '3D Ball', 'flat' => 'Photo mockup'];
+    if (!empty($cz['model'])) $lines[] = ['Studio', $labels[$cz['model']] ?? $cz['model']];
+    if (!empty($cz['color'])) $lines[] = ['Variation', $cz['color']];
+    if (!empty($cz['base_color'])) $lines[] = ['Base colour', $cz['base_color'], $cz['base_color']];
+    if (!empty($cz['sleeve_color'])) $lines[] = ['Sleeves', $cz['sleeve_color'], $cz['sleeve_color']];
+    if (!empty($cz['trim_color'])) $lines[] = ['Collar / trim', $cz['trim_color'], $cz['trim_color']];
+    if (!empty($cz['pattern']) && $cz['pattern'] !== 'none') $lines[] = ['Pattern', ucfirst($cz['pattern']) . (!empty($cz['pattern_color']) ? ' (' . $cz['pattern_color'] . ')' : ''), $cz['pattern_color'] ?? null];
+    if (!empty($cz['garment_color'])) $lines[] = ['Photo recolor', $cz['garment_color'], $cz['garment_color']];
+    if (!empty($cz['font'])) $lines[] = ['Font', trim(explode(',', $cz['font'])[0], "'\" ")];
+    if (!empty($cz['text_color'])) $lines[] = ['Text colour', $cz['text_color'] . (!empty($cz['outline_color']) ? ' / outline ' . $cz['outline_color'] : ''), $cz['text_color']];
+    $back_text = trim(($cz['back_name'] ?? '') . ' ' . ($cz['back_number'] ?? ''));
+    if ($back_text !== '') $lines[] = ['Back', '"' . $back_text . '"' . (!empty($cz['name_arc']) ? ' (arched)' : '')];
+    if (!empty($cz['front_number_enabled']) && ($cz['front_number'] ?? '') !== '') $lines[] = ['Front number', $cz['front_number']];
+    $logo_count = (int)($cz['front_logo_count'] ?? 0) + (int)($cz['back_logo_count'] ?? 0);
+    if ($logo_count) $lines[] = ['Logos', $logo_count . ' (' . (int)($cz['front_logo_count'] ?? 0) . ' front, ' . (int)($cz['back_logo_count'] ?? 0) . ' back)'];
+    foreach ((array)($cz['extra_texts'] ?? []) as $t) $lines[] = ['Text (' . $t['side'] . ')', '"' . $t['text'] . '"'];
+    if (!empty($cz['notes'])) $lines[] = ['Notes', $cz['notes']];
+    return $lines;
+}
+
+// [label => path] of every image stored for a customization.
+function customization_images($cz) {
+    $map = [
+        'preview_path' => 'Front mockup', 'preview_back_path' => 'Back mockup',
+        'render_front_path' => '3D front', 'render_back_path' => '3D back',
+        'design_front_path' => 'Print art front', 'design_back_path' => 'Print art back',
+    ];
+    $out = [];
+    foreach ($map as $k => $label) if (!empty($cz[$k])) $out[$label] = $cz[$k];
+    return $out;
 }
 
 // ============================================================

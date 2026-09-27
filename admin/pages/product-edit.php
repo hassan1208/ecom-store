@@ -199,7 +199,7 @@ $initial_qty_rules = $edit && $edit['qty_price_rules'] ? json_decode($edit['qty_
 
 include __DIR__ . '/../includes/admin-header.php';
 ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/vendor/quill/quill.snow.css">
 <style>.ql-editor{min-height:190px;font-size:14px}.ql-toolbar.ql-snow{border-color:#cbd5e1;border-radius:8px 8px 0 0}.ql-container.ql-snow{border-color:#cbd5e1;border-radius:0 0 8px 8px}</style>
 <form method="POST" enctype="multipart/form-data" id="productForm">
   <?= csrf_field() ?>
@@ -496,7 +496,7 @@ include __DIR__ . '/../includes/admin-header.php';
   </div>
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="<?= SITE_URL ?>/assets/vendor/quill/quill.min.js"></script>
 <script>
 /* ---------- Rich text description editor ---------- */
 const quillDesc = new Quill('#descEditor', {

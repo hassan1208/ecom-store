@@ -49,14 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Admin Login · BuiltCo Sports</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = { theme: { extend: {
-    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-    colors: { ink: '#0d1321', brand: { DEFAULT: '#059669', dark: '#047857' } },
-  } } };
-</script>
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/admin/assets/css/admin.css?v=<?= @filemtime(__DIR__ . '/assets/css/admin.css') ?>">
 </head>
 <body class="font-sans bg-ink min-h-screen flex items-center justify-center p-4"
       style="background-image:radial-gradient(circle at 20% 20%, rgba(5,150,105,.25), transparent 40%), radial-gradient(circle at 80% 80%, rgba(5,150,105,.15), transparent 40%);">
