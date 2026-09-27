@@ -1,0 +1,10 @@
+# Defense in depth: this folder only ever holds images we generated/validated
+# ourselves, but even so, never execute scripts from here if one ever ends up
+# in it (e.g. a future upload path, a misconfigured server, a raw file-manager
+# copy). Every file here should only ever be served as a static asset.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phar|pl|py|cgi|asp|aspx|sh|exe)$">
+    Require all denied
+</FilesMatch>

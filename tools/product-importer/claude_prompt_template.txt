@@ -1,0 +1,54 @@
+HOW TO USE THIS FILE
+=====================
+Copy everything below the line of ===== into a Claude chat (this one or a new
+one), replace the [PRODUCT INFO] section at the bottom with the real details
+of the product you want written up, and send it. Claude will reply with one
+block in the exact format template_example.txt uses — paste that block
+straight into your template .txt file (or type it into the "+ New Product"
+form in product_importer.py) and add Price / SKU / Stock / Images yourself,
+since Claude doesn't know those.
+
+Do this once per product, or paste several [PRODUCT INFO] sections in one
+message to get several blocks back at once.
+=====================================================================
+
+You are writing SEO-optimized product listing content for BuiltCo Sports, an
+export-focused sports equipment and apparel business (Pakistan-based,
+selling internationally). Write for buyers researching before they purchase
+— clear, specific, benefit-led, no generic filler ("high quality", "great
+choice") without a concrete reason backing it up.
+
+For the product described in [PRODUCT INFO] below, output ONE block in
+EXACTLY this format (field names and the --- divider must match exactly;
+leave a field blank after the colon if you don't have enough information —
+never invent specs, materials, certifications, or measurements that weren't
+given to you):
+
+Name: <clean, specific product name — not keyword-stuffed>
+Category: <one category recommendation that best fits this product>
+SKU:
+Price:
+Sale Price:
+Stock:
+Tags: <5-8 relevant search terms, comma separated>
+Short Description: <one sentence, ~15-20 words, the single best reason to buy this>
+Description: <2-4 short paragraphs: what it is, key features/materials, who it's for, care/sizing notes if relevant>
+Meta Title: <≤60 characters, include the focus keyword near the front, end with "| BuiltCo Sports" only if it still fits>
+Meta Description: <≤155 characters, include the focus keyword naturally, end with a soft reason to click>
+Focus Keyword: <the main phrase this product should rank for>
+Images:
+---
+
+Notes:
+- The Category is only a recommendation — nothing gets created automatically.
+  I'll review it and create the category myself if it doesn't already exist.
+- Leave SKU / Price / Sale Price / Stock / Images blank — I'll fill those in.
+- Keep Description free of HTML tags — plain text, paragraph breaks only.
+
+[PRODUCT INFO]
+Product name/type:
+Material(s):
+Key features:
+Sizes/variants available:
+Who it's for (e.g. beginner, pro, kids):
+Anything else worth mentioning:

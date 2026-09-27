@@ -1,0 +1,28 @@
+Name: Pro Boxing Gloves 12oz
+Category: Boxing
+SKU: BG-012
+Price: 4500
+Sale Price: 3999
+Stock: 20
+Tags: boxing, gloves, leather
+Short Description: Premium leather boxing gloves built for serious training.
+Description: Genuine leather shell with multi-layer foam padding, reinforced wrist strap, and breathable palm mesh. Sold in pairs.
+Meta Title: Pro Boxing Gloves 12oz | BuiltCo Sports
+Meta Description: Shop 12oz genuine leather boxing gloves with reinforced wrist support, built for serious training. Fast nationwide delivery.
+Focus Keyword: boxing gloves 12oz
+Images: C:\Users\ULC\Pictures\BoxingGloves
+---
+Name: Cricket Batting Gloves
+Category: Cricket
+SKU: CBG-005
+Price: 2800
+Sale Price:
+Stock: 15
+Tags: cricket, gloves, batting
+Short Description: Lightweight batting gloves with full finger protection.
+Description: High-density foam padding across knuckles and fingers, moisture-wicking inner lining, pre-curved fit for a natural grip.
+Meta Title: Cricket Batting Gloves | BuiltCo Sports
+Meta Description: Lightweight cricket batting gloves with full finger protection and a moisture-wicking lining for all-day comfort.
+Focus Keyword: cricket batting gloves
+Images:
+---

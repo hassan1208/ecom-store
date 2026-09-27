@@ -1,0 +1,3 @@
+# This folder holds server-side CLI tools (e.g. the vectorizer binary) that
+# PHP invokes internally — it is never meant to be reachable over HTTP.
+Require all denied

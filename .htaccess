@@ -1,0 +1,45 @@
+RewriteEngine On
+
+# Block direct web access to internal folders
+RewriteRule ^(includes|database|logs|cron)/ - [F,L]
+
+# Pretty URLs
+RewriteRule ^category/([a-zA-Z0-9-]+)/?$ category.php?slug=$1 [L,QSA]
+RewriteRule ^product/([a-zA-Z0-9-]+)/?$ product.php?slug=$1 [L,QSA]
+RewriteRule ^kit-builder/([a-zA-Z0-9-]+)/?$ kit-builder.php?slug=$1 [L,QSA]
+RewriteRule ^kit-builder/?$ kit-builder.php [L,QSA]
+RewriteRule ^contact/?$ contact.php [L,QSA]
+RewriteRule ^search/?$ search.php [L,QSA]
+RewriteRule ^login/?$ login.php [L,QSA]
+RewriteRule ^register/?$ register.php [L,QSA]
+RewriteRule ^logout/?$ logout.php [L,QSA]
+RewriteRule ^account/?$ account.php [L,QSA]
+RewriteRule ^wishlist/?$ wishlist.php [L,QSA]
+RewriteRule ^wishlist-toggle/?$ wishlist-toggle.php [L,QSA]
+RewriteRule ^cart/?$ cart.php [L,QSA]
+RewriteRule ^cart-restore/([a-zA-Z0-9]+)/?$ cart-restore.php?token=$1 [L,QSA]
+RewriteRule ^checkout/?$ checkout.php [L,QSA]
+RewriteRule ^order-success/?$ order-success.php [L,QSA]
+RewriteRule ^blog/([a-zA-Z0-9-]+)/?$ blog-post.php?slug=$1 [L,QSA]
+RewriteRule ^blog/?$ blog.php [L,QSA]
+RewriteRule ^invoice/([a-zA-Z0-9-]+)/?$ invoice.php?order=$1 [L,QSA]
+RewriteRule ^track-order/?$ track-order.php [L,QSA]
+RewriteRule ^catalog/?$ catalog.php [L,QSA]
+
+# SEO files
+RewriteRule ^robots\.txt$ robots.php [L]
+RewriteRule ^sitemap\.xml$ sitemap.xml.php [L]
+RewriteRule ^llms\.txt$ llms.txt.php [L]
+
+# Static content pages (About Us, Privacy Policy, Terms, FAQ, etc.) — catch-all,
+# must stay LAST so it never shadows a real file/folder or the routes above.
+# Matches single-segment AND deeper/unknown paths so every dead link lands on
+# page.php's branded 404 (proper 404 status) instead of Apache's default error page.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9-]+)/?$ page.php?slug=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ page.php?slug=$1 [L,QSA]
+
+Options -Indexes

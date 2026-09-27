@@ -1,0 +1,8 @@
+logs/
+*.log
+assets/uploads/payment-screenshots/*
+assets/uploads/customizations/*
+assets/uploads/design-requests/*
+assets/uploads/design-vectors/*
+!assets/uploads/**/.gitkeep
+.DS_Store
