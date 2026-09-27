@@ -37,7 +37,7 @@
   .link-arrow:hover i { transform: translateX(4px); }
 
   /* ---- Buttons ---- */
-  .btn { @apply relative inline-flex items-center justify-center gap-2 rounded-full font-display font-semibold uppercase tracking-wider text-sm px-7 py-3.5 transition duration-300 select-none disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn { @apply relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-display font-semibold uppercase tracking-wider text-sm px-7 py-3.5 transition duration-300 select-none disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-primary { @apply btn bg-ignite text-white hover:bg-ignite-dark shadow-glow hover:-translate-y-0.5; }
   .btn-dark { @apply btn bg-ink text-white hover:bg-black hover:-translate-y-0.5; }
   .btn-light { @apply btn bg-white text-ink hover:bg-white/90 hover:-translate-y-0.5; }

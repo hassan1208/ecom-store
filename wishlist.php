@@ -12,13 +12,13 @@ $products = fetch_all(
 $meta_title = 'My Wishlist | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
+$hero_title = 'My Wishlist'; $hero_eyebrow = count($products) . ' saved'; $hero_crumbs = ['Account' => url('account'), 'Wishlist' => null];
+include __DIR__ . '/includes/page-hero.php';
 ?>
-<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-  <nav class="text-xs text-slate-400 mb-4" aria-label="Breadcrumb"><a href="<?= url('account') ?>" class="hover:text-ignite">My Account</a> / <span class="text-slate-600">Wishlist</span></nav>
-  <h1 class="font-display font-bold text-3xl mb-8">My Wishlist</h1>
+<main id="main" class="container-x py-12">
 
   <?php if ($products): ?>
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
     <?php foreach ($products as $p): ?>
     <?= render_product_card($p) ?>
     <?php endforeach; ?>
@@ -27,7 +27,7 @@ include __DIR__ . '/includes/site-header.php';
   <div class="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-400">
     <i class="fa-regular fa-heart text-3xl mb-3"></i>
     <p class="font-medium">Your wishlist is empty.</p>
-    <a href="<?= url('') ?>" class="text-ignite font-semibold text-sm mt-2 inline-block">Start Shopping &rarr;</a>
+    <a href="<?= url('shop') ?>" class="btn-primary btn-sm mt-4">Start shopping</a>
   </div>
   <?php endif; ?>
 </main>

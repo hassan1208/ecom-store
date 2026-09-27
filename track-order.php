@@ -11,15 +11,15 @@ $not_found = ($order_number && $order_email && !$order);
 $meta_title = 'Track Your Order | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
+$hero_title = 'Track Your Order'; $hero_eyebrow = 'Order status'; $hero_sub = 'Enter your order number and the email you used at checkout.'; $hero_crumbs = ['Track order' => null];
+include __DIR__ . '/includes/page-hero.php';
 ?>
-<main id="main" class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-  <h1 class="font-display font-bold text-3xl mb-2 text-center">Track Your Order</h1>
-  <p class="text-slate-500 text-sm mb-8 text-center">Enter your order number and the email you used at checkout.</p>
+<main id="main" class="container-x max-w-2xl py-12">
 
-  <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
-    <input type="text" name="order" required value="<?= h($order_number) ?>" placeholder="Order number (e.g. ORD-XXXXXXXX-20260101)" class="rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite sm:col-span-2">
-    <input type="email" name="email" required value="<?= h($order_email) ?>" placeholder="Email used at checkout" class="rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite sm:col-span-2">
-    <button type="submit" class="sm:col-span-2 inline-flex items-center justify-center gap-2 bg-ignite hover:bg-ignite-dark text-white font-display font-semibold uppercase tracking-wide text-sm px-7 py-3 rounded-full transition">
+  <form method="GET" class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+    <input type="text" name="order" required value="<?= h($order_number) ?>" placeholder="Order number (e.g. ORD-XXXXXXXX-20260101)" class="input sm:col-span-2" aria-label="Order details">
+    <input type="email" name="email" required value="<?= h($order_email) ?>" placeholder="Email used at checkout" class="input sm:col-span-2" aria-label="Order details">
+    <button type="submit" class="sm:col-span-2 btn-primary btn-shine">
       Track Order
     </button>
   </form>
@@ -29,7 +29,7 @@ include __DIR__ . '/includes/site-header.php';
   <?php endif; ?>
 
   <?php if ($order): ?>
-  <div class="rounded-2xl border border-slate-200 p-6">
+  <div class="card p-6 sm:p-8">
     <div class="flex items-center justify-between mb-6">
       <div>
         <p class="text-xs text-slate-400">Order Number</p>

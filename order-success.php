@@ -26,7 +26,7 @@ include __DIR__ . '/includes/site-header.php';
   <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-5 text-2xl">
     <i class="fa-solid fa-check"></i>
   </div>
-  <h1 class="font-display font-bold text-3xl mb-2">Order Placed!</h1>
+  <h1 class="font-display font-bold uppercase text-3xl sm:text-4xl mb-2">Order Placed!</h1>
   <p class="text-slate-500 mb-1">Thank you, <?= h($order['customer_name']) ?>. We'll contact you to confirm delivery.</p>
   <p class="text-sm text-slate-400 mb-8">Order number: <span class="font-semibold text-slate-700"><?= h($order['order_number']) ?></span></p>
 
@@ -52,7 +52,7 @@ include __DIR__ . '/includes/site-header.php';
     <a href="<?= url('track-order?order=' . urlencode($order['order_number']) . '&email=' . urlencode($order['customer_email'])) ?>" class="inline-flex items-center gap-2 border-2 border-ink text-ink font-display font-semibold uppercase tracking-wide text-sm px-7 py-3.5 rounded-full hover:bg-ink hover:text-white transition">
       <i class="fa-solid fa-truck-fast"></i> Track Order
     </a>
-    <a href="<?= url('') ?>" class="inline-flex items-center gap-2 bg-ignite hover:bg-ignite-dark text-white font-display font-semibold uppercase tracking-wide text-sm px-7 py-3.5 rounded-full transition">
+    <a href="<?= url('') ?>" class="btn-primary btn-shine">
       Continue Shopping <i class="fa-solid fa-arrow-right"></i>
     </a>
   </div>

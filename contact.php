@@ -39,15 +39,9 @@ $meta_description = 'Get in touch with ' . setting('site_name', 'BuiltCo Sports'
 include __DIR__ . '/includes/site-header.php';
 ?>
 <main id="main">
-  <section class="bg-ink py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <p class="text-ignite font-display font-semibold uppercase tracking-[0.2em] text-xs mb-3">Get In Touch</p>
-      <h1 class="font-display font-bold text-white text-3xl sm:text-4xl">Contact Us</h1>
-      <p class="text-white/50 mt-2 max-w-lg">Have a bulk order, wholesale request, or general question? Send us a message and we'll get back to you.</p>
-    </div>
-  </section>
+<?php $hero_title = 'Contact Us'; $hero_eyebrow = 'Get in touch'; $hero_sub = "Bulk order, wholesale request or a custom kit? Send us a message — we reply within one business day."; $hero_crumbs = ['Contact' => null]; include __DIR__ . '/includes/page-hero.php'; ?>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-5 gap-10">
+  <section class="container-x py-16 grid grid-cols-1 lg:grid-cols-5 gap-10">
     <div class="lg:col-span-3">
       <?php if ($submitted): ?>
       <div class="rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 p-6 flex items-start gap-3">
@@ -69,33 +63,33 @@ include __DIR__ . '/includes/site-header.php';
         <?= csrf_field() ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Full Name *</label>
-            <input type="text" name="name" required value="<?= h($_POST['name'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+            <label class="label">Full Name *</label>
+            <input type="text" name="name" required value="<?= h($_POST['name'] ?? '') ?>" class="input">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email *</label>
-            <input type="email" name="email" required value="<?= h($_POST['email'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+            <label class="label">Email *</label>
+            <input type="email" name="email" required value="<?= h($_POST['email'] ?? '') ?>" class="input">
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Phone</label>
-            <input type="text" name="phone" value="<?= h($_POST['phone'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+            <label class="label">Phone</label>
+            <input type="text" name="phone" value="<?= h($_POST['phone'] ?? '') ?>" class="input">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Company</label>
-            <input type="text" name="company" value="<?= h($_POST['company'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+            <label class="label">Company</label>
+            <input type="text" name="company" value="<?= h($_POST['company'] ?? '') ?>" class="input">
           </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Quantity Needed <span class="text-slate-400 font-normal">(for bulk orders)</span></label>
-          <input type="number" min="1" name="quantity_needed" value="<?= h($_POST['quantity_needed'] ?? '') ?>" placeholder="e.g. 100" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+          <label class="label">Quantity Needed <span class="text-slate-400 font-normal">(for bulk orders)</span></label>
+          <input type="number" min="1" name="quantity_needed" value="<?= h($_POST['quantity_needed'] ?? '') ?>" placeholder="e.g. 100" class="input">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Message *</label>
-          <textarea name="message" rows="5" required class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite"><?= h($_POST['message'] ?? '') ?></textarea>
+          <label class="label">Message *</label>
+          <textarea name="message" rows="5" required class="input"><?= h($_POST['message'] ?? '') ?></textarea>
         </div>
-        <button type="submit" class="inline-flex items-center gap-2 bg-ignite hover:bg-ignite-dark text-white font-display font-semibold uppercase tracking-wide text-sm px-7 py-3.5 rounded-full transition">
+        <button type="submit" class="btn-primary btn-shine">
           Send Message <i class="fa-solid fa-paper-plane"></i>
         </button>
       </form>

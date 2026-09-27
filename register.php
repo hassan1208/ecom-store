@@ -45,13 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $meta_title = 'Create Account | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
+require_once __DIR__ . '/includes/auth-shell.php';
+auth_shell_open();
 ?>
-<main id="main" class="max-w-md mx-auto px-4 sm:px-6 py-16">
-  <h1 class="font-display font-bold text-3xl mb-2">Create Account</h1>
+  <h1 class="font-display font-bold uppercase text-3xl sm:text-4xl mb-2">Create Account</h1>
   <p class="text-slate-500 text-sm mb-8">Already have an account? <a href="<?= url('login') . ($redirect !== url('account') ? '?redirect=' . urlencode($redirect) : '') ?>" class="text-ignite font-semibold">Sign in</a></p>
 
   <?php if ($errors): ?>
-  <div class="mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 p-4 text-sm">
+  <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4 text-sm">
     <ul class="list-disc pl-4 space-y-0.5"><?php foreach ($errors as $e): ?><li><?= h($e) ?></li><?php endforeach; ?></ul>
   </div>
   <?php endif; ?>
@@ -61,29 +62,29 @@ include __DIR__ . '/includes/site-header.php';
     <input type="hidden" name="redirect" value="<?= h($redirect) ?>">
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">First Name *</label>
-        <input type="text" name="first_name" required value="<?= h($_POST['first_name'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+        <label class="label">First Name *</label>
+        <input type="text" name="first_name" required value="<?= h($_POST['first_name'] ?? '') ?>" class="input">
       </div>
       <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Last Name</label>
-        <input type="text" name="last_name" value="<?= h($_POST['last_name'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+        <label class="label">Last Name</label>
+        <input type="text" name="last_name" value="<?= h($_POST['last_name'] ?? '') ?>" class="input">
       </div>
     </div>
     <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email Address *</label>
-      <input type="email" name="email" required value="<?= h($_POST['email'] ?? '') ?>" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+      <label class="label">Email Address *</label>
+      <input type="email" name="email" required value="<?= h($_POST['email'] ?? '') ?>" class="input">
     </div>
     <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-1.5">Password *</label>
-      <input type="password" name="password" required minlength="6" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+      <label class="label">Password *</label>
+      <input type="password" name="password" required minlength="6" class="input">
     </div>
     <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-1.5">Confirm Password *</label>
-      <input type="password" name="confirm_password" required minlength="6" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+      <label class="label">Confirm Password *</label>
+      <input type="password" name="confirm_password" required minlength="6" class="input">
     </div>
-    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-ignite hover:bg-ignite-dark text-white font-display font-semibold uppercase tracking-wide text-sm px-7 py-3.5 rounded-full transition">
+    <button type="submit" class="btn-primary btn-shine w-full">
       Create Account
     </button>
   </form>
-</main>
+<?php auth_shell_close(); ?>
 <?php include __DIR__ . '/includes/site-footer.php'; ?>

@@ -34,10 +34,11 @@ $orders = fetch_all(
 $meta_title = 'My Account | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
+$hero_title = 'My Account'; $hero_eyebrow = 'Welcome back, ' . ($customer['first_name'] ?? ''); $hero_crumbs = ['Account' => null];
+include __DIR__ . '/includes/page-hero.php';
 ?>
-<main id="main" class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="font-display font-bold text-3xl">My Account</h1>
+<main id="main" class="container-x max-w-5xl py-12">
+  <div class="flex items-center justify-end mb-8">
     <div class="flex items-center gap-4">
       <a href="<?= url('wishlist') ?>" class="text-sm font-semibold text-slate-500 hover:text-ignite"><i class="fa-solid fa-heart mr-1"></i>Wishlist</a>
       <form method="POST" action="<?= url('logout') ?>"><?= csrf_field() ?><button type="submit" class="text-sm font-semibold text-slate-500 hover:text-ignite">Sign Out</button></form>
@@ -88,9 +89,9 @@ include __DIR__ . '/includes/site-header.php';
       <form method="POST" class="space-y-3">
         <?= csrf_field() ?>
         <input type="hidden" name="action" value="change_password">
-        <input type="password" name="current_password" placeholder="Current password" required class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
-        <input type="password" name="new_password" placeholder="New password" required minlength="6" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
-        <input type="password" name="confirm_password" placeholder="Confirm new password" required minlength="6" class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
+        <input type="password" name="current_password" placeholder="Current password" required class="input">
+        <input type="password" name="new_password" placeholder="New password" required minlength="6" class="input">
+        <input type="password" name="confirm_password" placeholder="Confirm new password" required minlength="6" class="input">
         <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-ink hover:bg-slate-800 text-white font-display font-semibold uppercase tracking-wide text-xs px-6 py-3 rounded-full transition">Update Password</button>
       </form>
     </div>

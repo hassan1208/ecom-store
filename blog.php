@@ -16,14 +16,9 @@ $meta_description = 'Latest news, tips and updates from ' . setting('site_name',
 include __DIR__ . '/includes/site-header.php';
 ?>
 <main id="main">
-  <section class="bg-ink py-14">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <p class="text-ignite font-display font-semibold uppercase tracking-[0.2em] text-xs mb-2">Blog</p>
-      <h1 class="font-display font-bold text-white text-3xl sm:text-4xl">Latest Articles</h1>
-    </div>
-  </section>
+<?php $hero_title = 'Guides & News'; $hero_eyebrow = 'Blog'; $hero_sub = 'Buying guides, care tips and team-kit inspiration.'; $hero_crumbs = ['Blog' => null]; include __DIR__ . '/includes/page-hero.php'; ?>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+  <section class="container-x py-14">
     <?php if ($posts): ?>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
       <?php foreach ($posts as $p): ?>

@@ -310,7 +310,10 @@ include __DIR__ . '/includes/site-header.php';
         <?php if ($display_compare): ?><span id="compareDisplay" class="text-sm text-slate-400 line-through"><?= format_price($display_compare) ?></span><?php endif; ?>
       </div>
     </div>
-    <a href="<?= url('kit-builder') ?>" class="text-xs font-semibold text-slate-400 hover:text-slate-600 shrink-0"><i class="fa-solid fa-arrow-left mr-1"></i> Choose Different Kit</a>
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="<?= url('product/' . $product['slug']) ?>?customize" class="btn-dark btn-sm"><i class="fa-solid fa-cube"></i> Open in 3D Studio</a>
+      <a href="<?= url('kit-builder') ?>" class="text-xs font-semibold text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left mr-1"></i> Choose different kit</a>
+    </div>
   </div>
 
   <form method="POST" id="addToCartForm">
