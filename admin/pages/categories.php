@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'parent_id'         => (int)($_POST['parent_id'] ?? 0) ?: null,
         'short_description' => sanitize($_POST['short_description'] ?? ''),
         'description'       => sanitize($_POST['description'] ?? ''),
+        'faq'               => sanitize($_POST['faq'] ?? '') ?: null,
         'image_alt'         => sanitize($_POST['image_alt'] ?? ''),
         'meta_title'        => sanitize($_POST['meta_title'] ?? ''),
         'meta_description'  => sanitize($_POST['meta_description'] ?? ''),
@@ -139,6 +140,11 @@ include __DIR__ . '/../includes/admin-header.php';
         <div class="mb-4">
           <label class="f-label">Category Content</label>
           <textarea name="description" rows="3" class="f-textarea" placeholder="Longer SEO-friendly content shown at the bottom of the category page..."><?= h($edit['description'] ?? '') ?></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="f-label">FAQs <span class="text-slate-400 font-normal">(one per line: Question? | Answer)</span></label>
+          <textarea name="faq" rows="4" class="f-textarea font-mono text-xs" placeholder="Do you offer bulk pricing? | Yes — tiered pricing starts at 10 units.&#10;Can I add my club logo? | Yes, use the 3D Design Studio on any product."><?= h($edit['faq'] ?? '') ?></textarea>
+          <p class="f-hint">Shown on the category page and added as FAQPage structured data (eligible for FAQ rich results).</p>
         </div>
 
         <div class="mb-5 grid grid-cols-2 gap-3">

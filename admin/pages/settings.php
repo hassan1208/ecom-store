@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'theme_primary_color', 'theme_primary_dark', 'theme_ink_color',
         'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption',
         'smtp_from_email', 'smtp_from_name', 'abandoned_cart_reminder_hours',
+        'seo_default_brand', 'seo_twitter_handle', 'seo_business_type', 'seo_founding_year',
+        'seo_price_valid_days', 'seo_return_days', 'seo_return_fees', 'seo_shipping_country',
+        'seo_handling_days_max', 'seo_transit_days_max', 'seo_bing_verification',
+        'seo_pinterest_verification', 'seo_yandex_verification', 'announcement_text', 'hero_3d_model',
     ];
     foreach ($fields as $f) {
         $val = sanitize($_POST[$f] ?? '');
@@ -26,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
     }
 
-    foreach (['email_order_confirmation_enabled', 'email_order_status_update_enabled', 'email_admin_new_order_enabled', 'email_admin_bulk_inquiry_enabled', 'abandoned_cart_reminder_enabled'] as $f) {
+    foreach (['email_order_confirmation_enabled', 'email_order_status_update_enabled', 'email_admin_new_order_enabled', 'email_admin_bulk_inquiry_enabled', 'abandoned_cart_reminder_enabled', 'seo_noindex_site', 'studio_enabled_3d', 'hero_3d_enabled'] as $f) {
         $val = isset($_POST[$f]) ? '1' : '0';
         $stmt = db()->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->bind_param('sss', $f, $val, $val);
@@ -66,7 +70,8 @@ include __DIR__ . '/../includes/admin-header.php';
       'payment'      => ['icon' => 'fa-credit-card', 'label' => 'Payment'],
       'email'        => ['icon' => 'fa-envelope', 'label' => 'Email'],
       'integrations' => ['icon' => 'fa-plug', 'label' => 'Integrations'],
-      'seo'          => ['icon' => 'fa-magnifying-glass', 'label' => 'Homepage SEO'],
+      'seo'          => ['icon' => 'fa-magnifying-glass', 'label' => 'SEO & Schema'],
+      'studio'       => ['icon' => 'fa-cube', 'label' => '3D & Design'],
       'social'       => ['icon' => 'fa-share-nodes', 'label' => 'Social'],
       'advanced'     => ['icon' => 'fa-code', 'label' => 'Advanced'],
   ];
@@ -274,6 +279,83 @@ include __DIR__ . '/../includes/admin-header.php';
       <div class="mb-4"><label class="f-label">Homepage Meta Description</label><textarea name="homepage_meta_description" rows="2" maxlength="160" class="f-textarea"><?= sv($s, 'homepage_meta_description') ?></textarea></div>
       <div class="mb-4"><label class="f-label">Intro Section Title</label><input type="text" name="homepage_intro_title" class="f-input" value="<?= sv($s, 'homepage_intro_title') ?>"></div>
       <div><label class="f-label">Intro Section Content</label><textarea name="homepage_intro_content" rows="3" class="f-textarea"><?= sv($s, 'homepage_intro_content') ?></textarea></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div class="card p-6">
+        <h2 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-sitemap text-brand mr-1.5"></i>Organization &amp; Products Schema</h2>
+        <p class="f-hint mb-4">Feeds Google's structured data (Knowledge Panel, Product rich results, Merchant listings).</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="f-label">Business type</label>
+            <select name="seo_business_type" class="f-select">
+              <?php foreach (['Organization', 'OnlineStore', 'SportingGoodsStore', 'Store', 'LocalBusiness', 'Corporation'] as $bt): ?>
+              <option value="<?= $bt ?>" <?= ($s['seo_business_type'] ?? 'Organization') === $bt ? 'selected' : '' ?>><?= $bt ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div><label class="f-label">Founding year</label><input type="text" name="seo_founding_year" class="f-input" maxlength="4" value="<?= sv($s, 'seo_founding_year') ?>" placeholder="e.g. 1998"></div>
+          <div><label class="f-label">Default brand</label><input type="text" name="seo_default_brand" class="f-input" value="<?= sv($s, 'seo_default_brand') ?>" placeholder="<?= sv($s, 'site_name') ?>"></div>
+          <div><label class="f-label">X / Twitter handle</label><input type="text" name="seo_twitter_handle" class="f-input" value="<?= sv($s, 'seo_twitter_handle') ?>" placeholder="@builtcosports"></div>
+          <div><label class="f-label">Ships from (country code)</label><input type="text" name="seo_shipping_country" maxlength="2" style="text-transform:uppercase" class="f-input" value="<?= sv($s, 'seo_shipping_country') ?: 'PK' ?>"></div>
+          <div><label class="f-label">Price valid for (days)</label><input type="number" min="30" name="seo_price_valid_days" class="f-input" value="<?= sv($s, 'seo_price_valid_days') ?: '365' ?>"></div>
+          <div><label class="f-label">Handling time (max days)</label><input type="number" min="0" name="seo_handling_days_max" class="f-input" value="<?= sv($s, 'seo_handling_days_max') ?: '3' ?>"></div>
+          <div><label class="f-label">Transit time (max days)</label><input type="number" min="1" name="seo_transit_days_max" class="f-input" value="<?= sv($s, 'seo_transit_days_max') ?: '7' ?>"></div>
+          <div><label class="f-label">Return window (days, 0 = none)</label><input type="number" min="0" name="seo_return_days" class="f-input" value="<?= sv($s, 'seo_return_days') ?: '14' ?>"></div>
+          <div>
+            <label class="f-label">Return shipping</label>
+            <select name="seo_return_fees" class="f-select">
+              <?php foreach (['FreeReturn' => 'Free returns', 'ReturnFeesCustomerResponsibility' => 'Customer pays', 'ReturnShippingFees' => 'Fixed return fee'] as $k => $lbl): ?>
+              <option value="<?= $k ?>" <?= ($s['seo_return_fees'] ?? 'FreeReturn') === $k ? 'selected' : '' ?>><?= $lbl ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <h2 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-shield-halved text-brand mr-1.5"></i>Search engine verification &amp; indexing</h2>
+        <p class="f-hint mb-4">Google Search Console is under Integrations. Paste only the <code>content</code> value of each meta tag.</p>
+        <div class="mb-4"><label class="f-label">Bing Webmaster</label><input type="text" name="seo_bing_verification" class="f-input" value="<?= sv($s, 'seo_bing_verification') ?>"></div>
+        <div class="mb-4"><label class="f-label">Pinterest</label><input type="text" name="seo_pinterest_verification" class="f-input" value="<?= sv($s, 'seo_pinterest_verification') ?>"></div>
+        <div class="mb-4"><label class="f-label">Yandex</label><input type="text" name="seo_yandex_verification" class="f-input" value="<?= sv($s, 'seo_yandex_verification') ?>"></div>
+        <label class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50/50 p-3 cursor-pointer">
+          <input type="checkbox" name="seo_noindex_site" value="1" class="w-4 h-4 rounded accent-brand mt-0.5" <?= ($s['seo_noindex_site'] ?? '0') === '1' ? 'checked' : '' ?>>
+          <span class="text-sm"><strong>Hide whole site from search engines</strong><br><span class="text-xs text-slate-500">Adds <code>noindex</code> to every page — only for staging/test copies. Leave OFF on the live store.</span></span>
+        </label>
+        <div class="mt-4 text-xs text-slate-500 space-y-1">
+          <p><i class="fa-solid fa-link mr-1"></i>Sitemap index: <a href="<?= url('sitemap.xml') ?>" target="_blank" class="text-brand font-semibold"><?= url('sitemap.xml') ?></a></p>
+          <p><i class="fa-solid fa-robot mr-1"></i>robots.txt: <a href="<?= url('robots.txt') ?>" target="_blank" class="text-brand font-semibold"><?= url('robots.txt') ?></a> · llms.txt: <a href="<?= url('llms.txt') ?>" target="_blank" class="text-brand font-semibold">view</a></p>
+          <p><i class="fa-solid fa-rss mr-1"></i>Blog RSS feed: <a href="<?= url('blog/feed') ?>" target="_blank" class="text-brand font-semibold"><?= url('blog/feed') ?></a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D & Design -->
+  <div class="tab-panel grid grid-cols-1 lg:grid-cols-2 gap-6" data-panel="studio" style="display:none">
+    <div class="card p-6">
+      <h2 class="font-bold text-slate-800 mb-5"><i class="fa-solid fa-cube text-brand mr-1.5"></i>3D Design Studio</h2>
+      <label class="flex items-start gap-3 mb-4 cursor-pointer">
+        <input type="checkbox" name="studio_enabled_3d" value="1" class="w-4 h-4 rounded accent-brand mt-0.5" <?= ($s['studio_enabled_3d'] ?? '1') === '1' ? 'checked' : '' ?>>
+        <span class="text-sm"><strong>Enable 3D preview in the product customizer</strong><br><span class="text-xs text-slate-500">When off, shoppers design on the product photo only. Per-product model is set on each product.</span></span>
+      </label>
+      <label class="flex items-start gap-3 mb-4 cursor-pointer">
+        <input type="checkbox" name="hero_3d_enabled" value="1" class="w-4 h-4 rounded accent-brand mt-0.5" <?= ($s['hero_3d_enabled'] ?? '1') === '1' ? 'checked' : '' ?>>
+        <span class="text-sm"><strong>Interactive 3D model in the homepage hero</strong><br><span class="text-xs text-slate-500">Loaded after the page is interactive, so it doesn't slow down first paint.</span></span>
+      </label>
+      <div class="max-w-xs">
+        <label class="f-label">Hero 3D model</label>
+        <select name="hero_3d_model" class="f-select">
+          <option value="jersey" <?= ($s['hero_3d_model'] ?? 'jersey') === 'jersey' ? 'selected' : '' ?>>Team jersey</option>
+          <option value="ball" <?= ($s['hero_3d_model'] ?? '') === 'ball' ? 'selected' : '' ?>>Football</option>
+        </select>
+      </div>
+    </div>
+    <div class="card p-6">
+      <h2 class="font-bold text-slate-800 mb-5"><i class="fa-solid fa-bullhorn text-brand mr-1.5"></i>Announcement bar</h2>
+      <label class="f-label">Scrolling announcement text</label>
+      <input type="text" name="announcement_text" maxlength="160" class="f-input" value="<?= sv($s, 'announcement_text') ?>" placeholder="Looking to buy in bulk? Contact us for wholesale & custom pricing">
+      <p class="f-hint">Shown in the ticker above the header on every page.</p>
     </div>
   </div>
 

@@ -77,17 +77,17 @@ $nav_groups = [
       </div>
     </div>
     <nav class="flex-1 px-3 py-4 overflow-y-auto">
-      <?php foreach ($nav_groups as $group_label => $items): ?>
+      <?php foreach ($nav_groups as $group_label => $nav_items): ?>
       <p class="px-3 mt-4 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 first:mt-0"><?= h($group_label) ?></p>
       <div class="space-y-1 mb-2">
-        <?php foreach ($items as $item): $active = $current_page === $item['key']; ?>
-        <a href="<?= $item['href'] ?>"
+        <?php foreach ($nav_items as $nav_item): $active = $current_page === $nav_item['key']; ?>
+        <a href="<?= $nav_item['href'] ?>"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
                   <?= $active ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-          <i class="fa-solid <?= $item['icon'] ?> w-4 text-center"></i>
-          <span class="flex-1"><?= h($item['label']) ?></span>
-          <?php if (!empty($item['badge'])): ?>
-          <span class="min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center <?= $active ? 'bg-white text-brand' : 'bg-red-500 text-white' ?>"><?= $item['badge'] ?></span>
+          <i class="fa-solid <?= $nav_item['icon'] ?> w-4 text-center"></i>
+          <span class="flex-1"><?= h($nav_item['label']) ?></span>
+          <?php if (!empty($nav_item['badge'])): ?>
+          <span class="min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center <?= $active ? 'bg-white text-brand' : 'bg-red-500 text-white' ?>"><?= $nav_item['badge'] ?></span>
           <?php endif; ?>
         </a>
         <?php endforeach; ?>

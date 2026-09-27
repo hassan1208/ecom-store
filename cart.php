@@ -23,7 +23,7 @@ $meta_robots = 'noindex, nofollow';
 
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+<main id="main" class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
   <h1 class="font-display font-bold text-3xl mb-8">Your Cart</h1>
 
   <?php $success = get_flash('success'); $error = get_flash('error'); ?>
@@ -44,10 +44,10 @@ include __DIR__ . '/includes/site-header.php';
       <?php foreach ($cart as $key => $item): ?>
       <div class="flex items-center gap-4 p-4 border-b border-slate-100 last:border-0">
         <div class="w-16 h-16 rounded-lg bg-slate-100 overflow-hidden shrink-0">
-          <?php if (!empty($item['customization']['preview_path'])): ?>
-          <img src="<?= UPLOAD_URL . h($item['customization']['preview_path']) ?>" class="w-full h-full object-cover">
+          <?php $cz_thumb = $item['customization']['render_front_path'] ?? '' ?: ($item['customization']['preview_path'] ?? ''); if ($cz_thumb): ?>
+          <img src="<?= UPLOAD_URL . h($cz_thumb) ?>" alt="Your custom design" class="w-full h-full object-cover">
           <?php elseif ($item['image']): ?>
-          <img src="<?= UPLOAD_URL . h($item['image']) ?>" class="w-full h-full object-cover">
+          <img src="<?= UPLOAD_URL . h($item['image']) ?>" alt="<?= h($item['name']) ?>" class="w-full h-full object-cover">
           <?php endif; ?>
         </div>
         <div class="flex-1 min-w-0">

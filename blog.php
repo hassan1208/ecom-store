@@ -15,7 +15,7 @@ $meta_description = 'Latest news, tips and updates from ' . setting('site_name',
 
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main>
+<main id="main">
   <section class="bg-ink py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <p class="text-ignite font-display font-semibold uppercase tracking-[0.2em] text-xs mb-2">Blog</p>

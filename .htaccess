@@ -1,7 +1,15 @@
 RewriteEngine On
 
-# Block direct web access to internal folders
-RewriteRule ^(includes|database|logs|cron)/ - [F,L]
+# --- Canonical host / HTTPS -------------------------------------------------
+# Uncomment once SSL is live so every URL has exactly one indexable version.
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+# RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# Block direct web access to internal folders and build files
+RewriteRule ^(includes|database|logs|cron|node_modules)/ - [F,L]
+RewriteRule ^(package(-lock)?\.json|tailwind(\.admin)?\.config\.js)$ - [F,L]
 
 # Pretty URLs
 RewriteRule ^category/([a-zA-Z0-9-]+)/?$ category.php?slug=$1 [L,QSA]
@@ -20,15 +28,19 @@ RewriteRule ^cart/?$ cart.php [L,QSA]
 RewriteRule ^cart-restore/([a-zA-Z0-9]+)/?$ cart-restore.php?token=$1 [L,QSA]
 RewriteRule ^checkout/?$ checkout.php [L,QSA]
 RewriteRule ^order-success/?$ order-success.php [L,QSA]
+RewriteRule ^blog/feed/?$ blog-feed.php [L]
 RewriteRule ^blog/([a-zA-Z0-9-]+)/?$ blog-post.php?slug=$1 [L,QSA]
 RewriteRule ^blog/?$ blog.php [L,QSA]
 RewriteRule ^invoice/([a-zA-Z0-9-]+)/?$ invoice.php?order=$1 [L,QSA]
 RewriteRule ^track-order/?$ track-order.php [L,QSA]
 RewriteRule ^catalog/?$ catalog.php [L,QSA]
+RewriteRule ^shop/?$ shop.php [L,QSA]
 
 # SEO files
 RewriteRule ^robots\.txt$ robots.php [L]
 RewriteRule ^sitemap\.xml$ sitemap.xml.php [L]
+RewriteRule ^sitemap-(pages|categories|products|blog)\.xml$ sitemap.xml.php?type=$1 [L]
+RewriteRule ^manifest\.webmanifest$ manifest.php [L]
 RewriteRule ^llms\.txt$ llms.txt.php [L]
 
 # Static content pages (About Us, Privacy Policy, Terms, FAQ, etc.) — catch-all,
@@ -43,3 +55,33 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ page.php?slug=$1 [L,QSA]
 
 Options -Indexes
+
+# --- Performance: compression + long-lived caching for versioned assets ------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/xml application/javascript application/json application/rss+xml application/manifest+json image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/svg+xml "access plus 6 months"
+</IfModule>
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# --- Security headers ----------------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  <FilesMatch "\.(css|js|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

@@ -80,6 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'qty_price_rules'   => $qty_rules ? json_encode($qty_rules) : null,
         'show_bulk_dm'      => isset($_POST['show_bulk_dm']) ? 1 : 0,
         'is_customizable'   => isset($_POST['is_customizable']) ? 1 : 0,
+        'customizer_model'  => in_array($_POST['customizer_model'] ?? '', ['auto', 'jersey', 'ball', 'flat'], true) ? $_POST['customizer_model'] : 'auto',
+        'customizer_base_color' => valid_hex_color($_POST['customizer_base_color'] ?? '') ?: null,
+        'brand'             => sanitize($_POST['brand'] ?? '') ?: null,
+        'gtin'              => preg_replace('/\D/', '', $_POST['gtin'] ?? '') ?: null,
+        'mpn'               => sanitize($_POST['mpn'] ?? '') ?: null,
         'accepts_design_requests' => isset($_POST['accepts_design_requests']) ? 1 : 0,
         'meta_title'        => sanitize($_POST['meta_title'] ?? ''),
         'meta_description'  => sanitize($_POST['meta_description'] ?? ''),
@@ -248,6 +253,12 @@ include __DIR__ . '/../includes/admin-header.php';
           <label class="f-label">Tags <span class="text-slate-400 font-normal">(comma separated)</span></label>
           <input type="text" name="tags" class="f-input" value="<?= h($edit['tags'] ?? '') ?>" placeholder="boxing, gloves, leather">
         </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div><label class="f-label">Brand</label><input type="text" name="brand" class="f-input" value="<?= h($edit['brand'] ?? '') ?>" placeholder="<?= h(setting('seo_default_brand', '') ?: setting('site_name')) ?>"></div>
+          <div><label class="f-label">GTIN / barcode</label><input type="text" name="gtin" class="f-input" value="<?= h($edit['gtin'] ?? '') ?>" placeholder="EAN / UPC (optional)"></div>
+          <div><label class="f-label">MPN</label><input type="text" name="mpn" class="f-input" value="<?= h($edit['mpn'] ?? '') ?>" placeholder="Manufacturer part no."></div>
+        </div>
+        <p class="f-hint mb-4">Used in Google Merchant / Product rich results.</p>
         <div class="mb-4">
           <label class="f-label">Short Description</label>
           <input type="text" name="short_description" maxlength="500" class="f-input" value="<?= h($edit['short_description'] ?? '') ?>">
@@ -480,6 +491,23 @@ include __DIR__ . '/../includes/admin-header.php';
           <label for="isCustomizable" class="text-sm font-medium text-slate-700">Enable customizer on this product</label>
         </div>
         <p class="f-hint mt-2">Tag each photo above with its color (via the field under the thumbnail) so the preview swaps correctly when a color is chosen.</p>
+        <?php $cm = $edit['customizer_model'] ?? 'auto'; ?>
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <div>
+            <label class="f-label">3D model</label>
+            <select name="customizer_model" class="f-select">
+              <option value="auto" <?= $cm === 'auto' ? 'selected' : '' ?>>Auto-detect<?= $edit ? ' (' . customizer_model_for($edit) . ')' : '' ?></option>
+              <option value="jersey" <?= $cm === 'jersey' ? 'selected' : '' ?>>3D Jersey / shirt</option>
+              <option value="ball" <?= $cm === 'ball' ? 'selected' : '' ?>>3D Ball</option>
+              <option value="flat" <?= $cm === 'flat' ? 'selected' : '' ?>>Photo mockup (3D card)</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label">Starting colour</label>
+            <input type="color" name="customizer_base_color" value="<?= h($edit['customizer_base_color'] ?? '') ?: '#1d4ed8' ?>" class="f-input !p-1 h-[42px]">
+          </div>
+        </div>
+        <p class="f-hint mt-2">The storefront Design Studio renders this product in 3D. Auto-detect picks a jersey for kits/shirts, a ball for footballs, otherwise a photo mockup.</p>
       </div>
 
       <!-- AI Design Requests -->

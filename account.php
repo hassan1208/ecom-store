@@ -35,7 +35,7 @@ $meta_title = 'My Account | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+<main id="main" class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
   <div class="flex items-center justify-between mb-8">
     <h1 class="font-display font-bold text-3xl">My Account</h1>
     <div class="flex items-center gap-4">

@@ -44,7 +44,7 @@ $meta_title = 'Sign In | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-md mx-auto px-4 sm:px-6 py-16">
+<main id="main" class="max-w-md mx-auto px-4 sm:px-6 py-16">
   <h1 class="font-display font-bold text-3xl mb-2">Sign In</h1>
   <p class="text-slate-500 text-sm mb-8">New here? <a href="<?= url('register') . ($redirect !== url('account') ? '?redirect=' . urlencode($redirect) : '') ?>" class="text-ignite font-semibold">Create an account</a></p>
 

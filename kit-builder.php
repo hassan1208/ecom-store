@@ -175,42 +175,77 @@ if ($product && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? ''
 // Step 1: no product chosen yet — show the kit picker
 // ====================================================================
 if (!$product) {
+    // Full kits (jersey + shorts templates) open the 2D kit builder below; every
+    // other customizable product opens the 3D Design Studio on its product page.
     $kits = fetch_all(
         "SELECT DISTINCT p.* FROM products p JOIN product_images pi ON pi.product_id=p.id
          WHERE p.status='active' AND p.is_customizable=1 AND pi.mockup_view='shorts'
          ORDER BY p.name ASC"
     );
-    $meta_title = 'Build Your Team Kit | ' . setting('site_name');
+    $kit_ids = array_column($kits, 'id');
+    $studio_products = array_values(array_filter(
+        fetch_all("SELECT * FROM products WHERE status='active' AND is_customizable=1 ORDER BY is_featured DESC, name ASC"),
+        fn($p) => !in_array($p['id'], $kit_ids) && customizer_model_for($p) !== 'flat'
+    ));
+    $meta_title = 'Design Your Team Kit in 3D — Custom Jerseys & Balls | ' . setting('site_name');
+    $meta_description = 'Design custom team jerseys and footballs in 3D: pick colours and patterns, add your crest, player names and numbers, and order for the whole squad.';
+    $canonical_url = url('kit-builder');
     include __DIR__ . '/includes/site-header.php';
     ?>
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-14">
-      <div class="text-center mb-12">
-        <p class="text-ignite font-display font-semibold uppercase tracking-[0.2em] text-xs mb-2">Kit Builder</p>
-        <h1 class="font-display font-bold text-3xl sm:text-4xl mb-3">Design Your Team Kit</h1>
-        <p class="text-slate-500 max-w-xl mx-auto">Pick a kit, then design the jersey front, back &amp; shorts — your logo, sponsor logo, names and numbers.</p>
-      </div>
-      <?php if ($kits): ?>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach ($kits as $k): $thumb = fetch_one("SELECT image_path FROM product_images WHERE product_id=? ORDER BY is_primary DESC, sort_order ASC LIMIT 1", 'i', $k['id']); ?>
-        <a href="<?= url('kit-builder/' . $k['slug']) ?>" class="group rounded-2xl border border-slate-200 overflow-hidden hover:border-ignite hover:shadow-lg transition block">
-          <div class="aspect-square bg-slate-100 overflow-hidden">
-            <?php if ($thumb): ?>
-            <img src="<?= UPLOAD_URL . h($thumb['image_path']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <?php endif; ?>
+    <main id="main">
+      <section class="relative bg-ink text-white overflow-hidden">
+        <div class="absolute inset-0 bg-grid opacity-50" aria-hidden="true"></div>
+        <div class="absolute -right-40 top-0 w-[520px] h-[520px] rounded-full bg-ignite/30 blur-[120px]" aria-hidden="true"></div>
+        <div class="container-x relative grid lg:grid-cols-2 gap-10 items-center py-16 sm:py-20">
+          <div>
+            <p class="eyebrow mb-4">3D Kit Builder</p>
+            <h1 class="font-display font-bold uppercase text-4xl sm:text-6xl leading-[0.95] mb-5">Design your <span class="text-stroke">team kit</span> in 3D</h1>
+            <p class="text-white/65 max-w-lg">Pick a product, spin it in 3D, choose colours and patterns, drop in your crest and sponsors, then add every player's name, number and size. We send you a free proof before production.</p>
           </div>
-          <div class="p-4">
-            <h3 class="font-display font-semibold text-base mb-1"><?= h($k['name']) ?></h3>
-            <span class="text-xs font-semibold text-ignite inline-flex items-center gap-1">Design This Kit <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <?php else: ?>
-      <div class="text-center py-16 text-slate-400">
-        <i class="fa-solid fa-shirt text-4xl mb-4"></i>
-        <p>No kits are set up for customization yet.</p>
-      </div>
-      <?php endif; ?>
+          <div id="hero3d" data-model="jersey" data-mobile="1" data-label="<?= h(explode(' ', setting('site_name', 'Team'))[0]) ?>" class="relative h-[340px] sm:h-[420px] cursor-grab" aria-label="3D kit preview"></div>
+        </div>
+      </section>
+
+      <section class="container-x section">
+        <?php if (!$kits && !$studio_products): ?>
+        <div class="text-center py-16 text-slate-400"><i class="fa-solid fa-shirt text-4xl mb-4"></i><p>No products are set up for customization yet.</p></div>
+        <?php endif; ?>
+
+        <?php if ($studio_products): ?>
+        <div class="section-head"><div><p class="eyebrow mb-3">Step 1</p><h2 class="section-title">Choose what to design</h2></div></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
+          <?php foreach ($studio_products as $k): $thumb = fetch_one("SELECT image_path, alt_text FROM product_images WHERE product_id=? ORDER BY is_primary DESC, sort_order ASC LIMIT 1", 'i', $k['id']); $m = customizer_model_for($k); ?>
+          <a href="<?= url('product/' . $k['slug']) ?>?customize" class="group card overflow-hidden block hover:-translate-y-1 transition duration-300" data-reveal>
+            <div class="aspect-square bg-slate-100 overflow-hidden relative">
+              <?php if ($thumb): ?><img src="<?= UPLOAD_URL . h($thumb['image_path']) ?>" alt="<?= h($thumb['alt_text'] ?: $k['name']) ?>" loading="lazy" width="500" height="500" class="w-full h-full object-cover group-hover:scale-105 transition duration-500"><?php endif; ?>
+              <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-ink text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"><i class="fa-solid fa-cube text-ignite"></i> 3D <?= $m === 'ball' ? 'Ball' : 'Jersey' ?></span>
+            </div>
+            <div class="p-4">
+              <h3 class="font-display font-semibold uppercase leading-tight mb-2"><?= h($k['name']) ?></h3>
+              <span class="text-xs font-bold uppercase tracking-wider text-ignite inline-flex items-center gap-1">Open 3D studio <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i></span>
+            </div>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($kits): ?>
+        <div class="section-head"><div><p class="eyebrow mb-3">Full kits</p><h2 class="section-title">Jersey + shorts builder</h2></div></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <?php foreach ($kits as $k): $thumb = fetch_one("SELECT image_path FROM product_images WHERE product_id=? ORDER BY is_primary DESC, sort_order ASC LIMIT 1", 'i', $k['id']); ?>
+          <a href="<?= url('kit-builder/' . $k['slug']) ?>" class="group card overflow-hidden block hover:-translate-y-1 transition" data-reveal>
+            <div class="aspect-square bg-slate-100 overflow-hidden">
+              <?php if ($thumb): ?><img src="<?= UPLOAD_URL . h($thumb['image_path']) ?>" alt="<?= h($k['name']) ?>" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"><?php endif; ?>
+            </div>
+            <div class="p-4">
+              <h3 class="font-display font-semibold uppercase mb-1"><?= h($k['name']) ?></h3>
+              <span class="text-xs font-bold text-ignite inline-flex items-center gap-1 uppercase tracking-wider">Design this kit <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+      </section>
     </main>
     <?php include __DIR__ . '/includes/site-footer.php'; ?>
     <?php exit; ?>
@@ -257,7 +292,7 @@ $meta_robots = 'noindex, follow';
 
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+<main id="main" class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
   <nav class="text-xs text-slate-400 mb-6" aria-label="Breadcrumb">
     <a href="<?= url('') ?>" class="hover:text-ignite">Home</a> /
     <a href="<?= url('kit-builder') ?>" class="hover:text-ignite">Kit Builder</a> /

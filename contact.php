@@ -38,7 +38,7 @@ $meta_description = 'Get in touch with ' . setting('site_name', 'BuiltCo Sports'
 
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main>
+<main id="main">
   <section class="bg-ink py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <p class="text-ignite font-display font-semibold uppercase tracking-[0.2em] text-xs mb-3">Get In Touch</p>

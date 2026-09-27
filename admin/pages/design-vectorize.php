@@ -13,7 +13,11 @@ if (!$req) { echo json_encode(['error' => 'Design request not found.']); exit; }
 
 $preset = in_array($_POST['preset'] ?? '', ['photo', 'poster', 'bw'], true) ? $_POST['preset'] : 'photo';
 
-$vtracer = realpath(__DIR__ . '/../../tools/vtracer/vtracer.exe');
+$vtracer = PHP_OS_FAMILY === 'Windows' ? realpath(__DIR__ . '/../../tools/vtracer/vtracer.exe') : false;
+if (!$vtracer && function_exists('shell_exec')) {
+    $found = trim((string)@shell_exec('command -v vtracer 2>/dev/null'));
+    $vtracer = $found !== '' ? $found : false;
+}
 $input_path = UPLOAD_PATH . $req['original_image_path'];
 if (!$vtracer || !file_exists($input_path)) { echo json_encode(['error' => 'Vectorizer tool or source image missing.']); exit; }
 

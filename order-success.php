@@ -22,7 +22,7 @@ $meta_title = 'Order Confirmed | ' . setting('site_name');
 $meta_robots = 'noindex, nofollow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
+<main id="main" class="max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
   <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-5 text-2xl">
     <i class="fa-solid fa-check"></i>
   </div>

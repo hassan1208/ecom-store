@@ -38,7 +38,13 @@ if (in_array($mime, ['image/svg+xml', 'text/plain', 'text/xml'], true) && $_FILE
 $upload = upload_image($_FILES['logo'], 'customizer-logos', 1500, 1500, 'logo');
 if (isset($upload['error'])) { echo json_encode(['error' => $upload['error']]); exit; }
 
-$vtracer = realpath(__DIR__ . '/tools/vtracer/vtracer.exe');
+// Bundled Windows build (XAMPP) first; on Linux/macOS hosting use a vtracer
+// binary installed on the PATH (e.g. `cargo install vtracer`) if there is one.
+$vtracer = PHP_OS_FAMILY === 'Windows' ? realpath(__DIR__ . '/tools/vtracer/vtracer.exe') : false;
+if (!$vtracer && function_exists('shell_exec')) {
+    $found = trim((string)@shell_exec('command -v vtracer 2>/dev/null'));
+    $vtracer = $found !== '' ? $found : false;
+}
 $input_path = UPLOAD_PATH . $upload['filename'];
 if (!$vtracer || !file_exists($input_path)) {
     echo json_encode(['success' => true, 'vector_path' => null, 'source_path' => $upload['filename'], 'is_original_vector' => false]);

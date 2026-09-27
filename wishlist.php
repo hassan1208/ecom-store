@@ -13,7 +13,7 @@ $meta_title = 'My Wishlist | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
   <nav class="text-xs text-slate-400 mb-4" aria-label="Breadcrumb"><a href="<?= url('account') ?>" class="hover:text-ignite">My Account</a> / <span class="text-slate-600">Wishlist</span></nav>
   <h1 class="font-display font-bold text-3xl mb-8">My Wishlist</h1>
 

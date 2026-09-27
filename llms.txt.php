@@ -16,6 +16,9 @@ if ($description) echo "{$description}\n\n";
 
 echo "## Website\n";
 echo "- Homepage: " . url('') . "\n";
+echo "- Shop all products: " . url('shop') . "\n";
+echo "- 3D Kit Builder / Design Studio (custom team kits with names, numbers and logos): " . url('kit-builder') . "\n";
+echo "- Bulk / wholesale enquiries: " . url('contact') . "\n";
 if ($categories) {
     echo "\n## Categories\n";
     foreach ($categories as $c) {
@@ -34,6 +37,23 @@ if ($phone || $email || $address) {
     if ($email) echo "- Email: {$email}\n";
 }
 
+$products = fetch_all("SELECT p.name, p.slug, p.short_description, p.base_price, p.sale_price, c.name AS cat FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.status='active' ORDER BY c.name, p.name LIMIT 300");
+if ($products) {
+    echo "\n## Products\n";
+    foreach ($products as $p) {
+        $price = format_price($p['sale_price'] ?: $p['base_price']);
+        $desc = $p['short_description'] ? ' — ' . meta_text($p['short_description'], 140) : '';
+        echo "- [{$p['name']}](" . url('product/' . $p['slug']) . ") ({$p['cat']}, {$price}){$desc}\n";
+    }
+}
+
+$posts = fetch_all("SELECT title, slug FROM blog_posts WHERE status='published' ORDER BY published_at DESC LIMIT 20");
+if ($posts) {
+    echo "\n## Guides & articles\n";
+    foreach ($posts as $bp) echo "- [{$bp['title']}](" . url('blog/' . $bp['slug']) . ")\n";
+}
+
 echo "\n## Notes\n";
-echo "- This is an e-commerce store. Product data is not yet available via this file.\n";
+echo "- Most products can be customised (colours, logos, names, numbers) in the on-site 3D Design Studio and ordered for whole teams.\n";
+echo "- Prices are in " . setting('currency_code', 'USD') . ". Bulk pricing tiers are shown on each product page.\n";
 echo "- Sitemap: " . url('sitemap.xml') . "\n";

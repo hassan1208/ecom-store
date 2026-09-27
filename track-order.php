@@ -12,7 +12,7 @@ $meta_title = 'Track Your Order | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
+<main id="main" class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
   <h1 class="font-display font-bold text-3xl mb-2 text-center">Track Your Order</h1>
   <p class="text-slate-500 text-sm mb-8 text-center">Enter your order number and the email you used at checkout.</p>
 

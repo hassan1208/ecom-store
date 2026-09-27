@@ -46,7 +46,7 @@ $meta_title = 'Create Account | ' . setting('site_name');
 $meta_robots = 'noindex, follow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-md mx-auto px-4 sm:px-6 py-16">
+<main id="main" class="max-w-md mx-auto px-4 sm:px-6 py-16">
   <h1 class="font-display font-bold text-3xl mb-2">Create Account</h1>
   <p class="text-slate-500 text-sm mb-8">Already have an account? <a href="<?= url('login') . ($redirect !== url('account') ? '?redirect=' . urlencode($redirect) : '') ?>" class="text-ignite font-semibold">Sign in</a></p>
 

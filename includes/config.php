@@ -564,7 +564,13 @@ function render_order_timeline($status) {
 }
 
 function default_robots_txt() {
-    return "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /includes/\nDisallow: /database/\nDisallow: /logs/\n\nSitemap: " . url('sitemap.xml') . "\n";
+    $base = rtrim(parse_url(SITE_URL, PHP_URL_PATH) ?? '', '/');
+    $rules = ['/admin/', '/includes/', '/database/', '/logs/', '/cron/', '/tools/', '/cart', '/checkout', '/account', '/wishlist', '/login', '/register', '/order-success', '/invoice/', '/cart-restore/', '/search', '/*?*sort=', '/*?*min=', '/*?*max=', '/customizer-upload.php', '/customizer-vectorize.php'];
+    $out = "User-agent: *\nAllow: /\n";
+    foreach ($rules as $r) $out .= 'Disallow: ' . $base . $r . "\n";
+    // Let crawlers fetch the CSS/JS/images they need to render pages.
+    $out .= 'Allow: ' . $base . "/assets/\n";
+    return $out . "\nSitemap: " . url('sitemap.xml') . "\n";
 }
 
 // ============================================================
@@ -744,6 +750,8 @@ function send_admin_new_customization_email($product_name, $customization) {
           . (!empty($customization['front_number_enabled']) && $customization['front_number'] !== '' ? '<p style="margin:0 0 4px;color:#64748b">Front Number: "' . h($customization['front_number']) . '"</p>' : '')
           . ($back_text !== '' ? '<p style="margin:0 0 4px;color:#64748b">Back: "' . h($back_text) . '"</p>' : '')
           . customization_vector_links_html($customization['logo_vectors'] ?? [])
+          . implode('', array_map(fn($l) => '<p style="margin:0 0 4px;color:#64748b">' . h($l[0]) . ': ' . h($l[1]) . '</p>', array_filter(customization_detail_lines($customization), fn($l) => in_array($l[0], ['Studio', 'Base colour', 'Sleeves', 'Collar / trim', 'Pattern', 'Notes'], true))))
+          . implode('', array_map(fn($label, $path) => '<p style="margin:0 0 4px"><a href="' . h(UPLOAD_URL . $path) . '" style="color:#4f46e5">' . h($label) . '</a></p>', array_keys($r = array_diff_key(customization_images($customization), ['Front mockup' => 1, 'Back mockup' => 1])), $r))
           . '<p style="margin:0 0 4px;color:#64748b">Email: ' . h($customization['email'] ?? '') . '</p>'
           . '<p style="margin:0 0 20px;color:#64748b">WhatsApp: ' . h($customization['whatsapp'] ?? '') . '</p>'
           . ($front_url ? '<p style="margin:0 0 8px"><img src="' . h($front_url) . '" style="max-width:220px;border-radius:8px;border:1px solid #eee"></p>' : '')
@@ -1177,7 +1185,8 @@ function json_ld($data) {
 
 // Plain-text, whitespace-collapsed, word-boundary-truncated meta text.
 function meta_text($text, $max = 160) {
-    $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$text), ENT_QUOTES, 'UTF-8')));
+    // Tags become spaces first so "<p>One?</p><p>Two" doesn't collapse into "One?Two".
+    $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags(preg_replace('/<[^>]+>/', ' $0', (string)$text)), ENT_QUOTES, 'UTF-8')));
     if (mb_strlen($text) <= $max) return $text;
     $cut = mb_substr($text, 0, $max - 1);
     $space = mb_strrpos($cut, ' ');

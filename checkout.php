@@ -140,7 +140,7 @@ $meta_title = 'Checkout | ' . setting('site_name');
 $meta_robots = 'noindex, nofollow';
 include __DIR__ . '/includes/site-header.php';
 ?>
-<main class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+<main id="main" class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
   <h1 class="font-display font-bold text-3xl mb-8">Checkout</h1>
 
   <?php if ($errors): ?>

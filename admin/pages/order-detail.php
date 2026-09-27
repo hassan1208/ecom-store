@@ -87,6 +87,19 @@ include __DIR__ . '/../includes/admin-header.php';
                   <?php if (!empty($cz['shorts_logo_vectors'])): foreach ($cz['shorts_logo_vectors'] as $i => $lv): if (empty($lv['vector_path'])) continue; ?>
                   <div><a href="<?= UPLOAD_URL . h($lv['vector_path']) ?>" target="_blank" class="underline font-semibold">Shorts Logo <?= $i + 1 ?> Vector</a> <?= !empty($lv['is_original_vector']) ? '(customer\'s)' : '(auto)' ?></div>
                   <?php endforeach; endif; ?>
+                  <?php foreach (customization_detail_lines($cz) as $line): if (in_array($line[0], ['Variation', 'Photo recolor', 'Font', 'Back', 'Front number'], true)) continue; ?>
+                  <div class="flex items-center gap-1.5"><?php if (!empty($line[2])): ?><span class="inline-block w-3 h-3 rounded-full border border-indigo-200" style="background:<?= h($line[2]) ?>"></span><?php endif; ?><?= h($line[0]) ?>: <?= h($line[1]) ?></div>
+                  <?php endforeach; ?>
+                  <?php $cz_imgs = array_diff_key(customization_images($cz), ['Front mockup' => 1, 'Back mockup' => 1]); if ($cz_imgs): ?>
+                  <div class="flex flex-wrap gap-2 mt-2">
+                    <?php foreach ($cz_imgs as $label => $path): ?>
+                    <a href="<?= UPLOAD_URL . h($path) ?>" target="_blank" download class="block text-center" title="<?= h($label) ?> — click to download">
+                      <img src="<?= UPLOAD_URL . h($path) ?>" alt="<?= h($label) ?>" class="w-16 h-16 rounded object-contain border border-indigo-200 bg-[repeating-conic-gradient(#eef2ff_0_25%,#fff_0_50%)] [background-size:10px_10px]">
+                      <span class="text-[9px] font-semibold"><?= h($label) ?></span>
+                    </a>
+                    <?php endforeach; ?>
+                  </div>
+                  <?php endif; ?>
                   <?php if (!empty($cz['email'])): ?><div>Email: <?= h($cz['email']) ?></div><?php endif; ?>
                   <?php if (!empty($cz['whatsapp'])): ?><div>WhatsApp: <a href="https://wa.me/<?= h(preg_replace('/\D/', '', $cz['whatsapp'])) ?>" target="_blank" class="underline font-semibold">Chat</a></div><?php endif; ?>
                 </div>

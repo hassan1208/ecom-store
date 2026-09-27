@@ -6,16 +6,9 @@ $slug = sanitize($_GET['slug'] ?? '');
 $product = $slug ? fetch_one("SELECT * FROM products WHERE slug=? AND status='active'", 's', $slug) : null;
 
 if (!$product) {
-    http_response_code(404);
-    $meta_title = 'Product Not Found | ' . setting('site_name');
-    include __DIR__ . '/includes/site-header.php';
-    echo '<main class="max-w-3xl mx-auto px-4 py-24 text-center">
-            <h1 class="font-display font-bold text-3xl mb-3">Product Not Found</h1>
-            <p class="text-slate-500 mb-6">This product may have been removed or is no longer available.</p>
-            <a href="' . url('') . '" class="text-ignite font-semibold">&larr; Back to Home</a>
-          </main>';
-    include __DIR__ . '/includes/site-footer.php';
-    exit;
+    $nf_title = 'Product Not Found';
+    $nf_message = 'This product may have been removed or is no longer available.';
+    include __DIR__ . '/includes/not-found.php';
 }
 
 // --- Notify me when back in stock -----------------------------------------------

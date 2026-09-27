@@ -1,78 +1,71 @@
 <?php
-// search.php — site-wide product search (name, short description, tags, SKU)
+// search.php — site-wide product search (name, short description, tags, SKU,
+// category). ?suggest=1 returns JSON for the header's live suggestions.
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/product-listing.php';
 
-$q = trim(sanitize($_GET['q'] ?? ''));
-$products = [];
-if ($q !== '') {
-    $like = '%' . $q . '%';
-    $products = fetch_all(
-        "SELECT p.*, (SELECT image_path FROM product_images WHERE product_id=p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) AS thumb,
-                (SELECT alt_text FROM product_images WHERE product_id=p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) AS thumb_alt
-         FROM products p
-         WHERE p.status='active' AND (p.name LIKE ? OR p.short_description LIKE ? OR p.tags LIKE ? OR p.sku LIKE ?)
-         ORDER BY p.name ASC",
-        'ssss', $like, $like, $like, $like
+$q = mb_substr(trim(sanitize($_GET['q'] ?? '')), 0, 80);
+$like = '%' . str_replace(['%', '_'], ['\%', '\_'], $q) . '%';
+$search_where = "(p.name LIKE ? OR p.short_description LIKE ? OR p.tags LIKE ? OR p.sku LIKE ? OR p.category_id IN (SELECT id FROM categories WHERE name LIKE ?))";
+
+if (!empty($_GET['suggest'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: private, max-age=60');
+    if (mb_strlen($q) < 2) { echo json_encode(['products' => [], 'categories' => []]); exit; }
+    $rows = fetch_all(
+        "SELECT p.name, p.slug, p.base_price, p.sale_price, c.name AS cat,
+                (SELECT image_path FROM product_images WHERE product_id=p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) AS thumb
+         FROM products p LEFT JOIN categories c ON c.id=p.category_id
+         WHERE p.status='active' AND $search_where
+         ORDER BY (p.name LIKE ?) DESC, p.is_featured DESC, p.views DESC LIMIT 6",
+        'ssssss', $like, $like, $like, $like, $like, $q . '%'
     );
+    $cats = fetch_all("SELECT name, slug FROM categories WHERE status='active' AND name LIKE ? ORDER BY name LIMIT 4", 's', $like);
+    echo json_encode([
+        'products' => array_map(fn($r) => [
+            'name' => $r['name'], 'url' => url('product/' . $r['slug']), 'category' => $r['cat'],
+            'price' => format_price($r['sale_price'] ?: $r['base_price']),
+            'image' => $r['thumb'] ? UPLOAD_URL . $r['thumb'] : null,
+        ], $rows),
+        'categories' => array_map(fn($c) => ['name' => $c['name'], 'url' => url('category/' . $c['slug'])], $cats),
+    ], JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
-$meta_title = ($q !== '' ? 'Search results for "' . $q . '"' : 'Search') . ' | ' . setting('site_name');
-$canonical_url = url('search') . ($q !== '' ? '?q=' . urlencode($q) : '');
-$meta_robots = 'noindex, follow';
+$f = listing_params();
+$result = $q !== '' ? listing_query($search_where, 'sssss', [$like, $like, $like, $like, $like], $f) : ['items' => [], 'total' => 0, 'pages' => 1, 'page' => 1];
+$base_url = url('search');
+
+$meta_title    = ($q !== '' ? 'Search results for "' . $q . '"' : 'Search') . ' | ' . setting('site_name');
+$canonical_url = url('search');
+$meta_robots   = 'noindex, follow'; // internal search result pages should never be indexed
 
 include __DIR__ . '/includes/site-header.php';
 ?>
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-  <nav class="text-xs text-slate-400 mb-4" aria-label="Breadcrumb"><a href="<?= url('') ?>" class="hover:text-ignite">Home</a> / <span class="text-slate-600">Search</span></nav>
-  <h1 class="font-display font-bold text-3xl mb-6"><?= $q !== '' ? 'Search results for &ldquo;' . h($q) . '&rdquo;' : 'Search Products' ?></h1>
-
-  <form method="GET" action="<?= url('search') ?>" class="mb-10 max-w-lg">
-    <div class="relative">
-      <input type="text" name="q" value="<?= h($q) ?>" placeholder="Search products..." autofocus
-             class="w-full rounded-full border border-slate-300 pl-5 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ignite/20 focus:border-ignite">
-      <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-ignite hover:bg-ignite-dark text-white flex items-center justify-center transition">
-        <i class="fa-solid fa-magnifying-glass text-sm"></i>
-      </button>
+<main id="main">
+  <section class="bg-ink text-white">
+    <div class="container-x py-12 sm:py-16">
+      <p class="eyebrow mb-3">Search</p>
+      <h1 class="font-display font-bold uppercase text-3xl sm:text-5xl leading-none mb-8"><?= $q !== '' ? 'Results for &ldquo;' . h($q) . '&rdquo;' : 'Find your gear' ?></h1>
+      <form method="GET" action="<?= url('search') ?>" class="max-w-2xl relative" role="search">
+        <label for="searchPageQ" class="sr-only">Search products</label>
+        <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input id="searchPageQ" type="search" name="q" value="<?= h($q) ?>" placeholder="Search products, categories, SKUs…" <?= $q === '' ? 'autofocus' : '' ?> class="w-full rounded-full bg-white text-ink pl-12 pr-32 py-4 font-medium focus:outline-none focus:ring-4 focus:ring-ignite/40">
+        <button type="submit" class="btn-primary btn-sm absolute right-2 top-1/2 -translate-y-1/2">Search</button>
+      </form>
     </div>
-  </form>
-
-  <?php if ($q === ''): ?>
-  <div class="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-400">
-    <i class="fa-solid fa-magnifying-glass text-3xl mb-3"></i>
-    <p class="font-medium">Type something above to search our products.</p>
-  </div>
-  <?php elseif ($products): ?>
-  <p class="text-sm text-slate-400 mb-6"><?= count($products) ?> result<?= count($products) === 1 ? '' : 's' ?> found.</p>
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-    <?php foreach ($products as $p): ?>
-    <a href="<?= url('product/' . $p['slug']) ?>" class="group block">
-      <div class="aspect-square rounded-xl overflow-hidden bg-slate-100 mb-3 relative">
-        <?php if ($p['thumb']): ?>
-        <img src="<?= UPLOAD_URL . h($p['thumb']) ?>" alt="<?= h($p['thumb_alt'] ?: $p['name']) ?>" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-        <?php else: ?>
-        <div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fa-solid fa-image text-2xl"></i></div>
-        <?php endif; ?>
-        <?php if ($p['is_featured']): ?><span class="absolute top-2 left-2 bg-ignite text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase">Featured</span><?php endif; ?>
+  </section>
+  <div class="container-x py-12">
+    <?php if ($q === ''): ?>
+    <div class="text-center py-10">
+      <p class="text-slate-500 mb-6">Popular searches</p>
+      <div class="flex flex-wrap justify-center gap-2">
+        <?php foreach (['Football', 'Boxing gloves', 'Jersey', 'Cricket', 'Gym', 'Cycling'] as $s): ?><a href="<?= url('search') ?>?q=<?= urlencode($s) ?>" class="chip"><?= h($s) ?></a><?php endforeach; ?>
       </div>
-      <h3 class="font-medium text-sm text-slate-800 group-hover:text-ignite transition truncate"><?= h($p['name']) ?></h3>
-      <div class="text-sm font-semibold mt-1">
-        <?php if ($p['sale_price']): ?>
-        <?= format_price($p['sale_price']) ?> <span class="text-xs text-slate-400 line-through ml-1"><?= format_price($p['base_price']) ?></span>
-        <?php else: ?>
-        <?= format_price($p['base_price']) ?>
-        <?php endif; ?>
-      </div>
-    </a>
-    <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <?= render_listing($base_url, $f, $result, ['empty' => 'No products found for "' . $q . '"']) ?>
+    <?php endif; ?>
   </div>
-  <?php else: ?>
-  <div class="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-400">
-    <i class="fa-solid fa-box-open text-3xl mb-3"></i>
-    <p class="font-medium">No products found for &ldquo;<?= h($q) ?>&rdquo;.</p>
-    <p class="text-sm mt-1">Try a different keyword, or <a href="<?= url('contact') ?>" class="text-ignite font-semibold">contact us</a> for a bulk quote.</p>
-  </div>
-  <?php endif; ?>
 </main>
-
 <?php include __DIR__ . '/includes/site-footer.php'; ?>

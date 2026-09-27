@@ -6,16 +6,11 @@ $slug = sanitize($_GET['slug'] ?? '');
 $post = $slug ? fetch_one("SELECT * FROM blog_posts WHERE slug=? AND status='published'", 's', $slug) : null;
 
 if (!$post) {
-    http_response_code(404);
-    $meta_title = 'Post Not Found | ' . setting('site_name');
-    include __DIR__ . '/includes/site-header.php';
-    echo '<main class="max-w-3xl mx-auto px-4 py-24 text-center">
-            <h1 class="font-display font-bold text-3xl mb-3">Post Not Found</h1>
-            <p class="text-slate-500 mb-6">This article may have been moved or is no longer available.</p>
-            <a href="' . url('blog') . '" class="text-ignite font-semibold">&larr; Back to Blog</a>
-          </main>';
-    include __DIR__ . '/includes/site-footer.php';
-    exit;
+    $nf_title = 'Article Not Found';
+    $nf_message = 'This article may have been moved or is no longer available.';
+    $nf_back_url = url('blog');
+    $nf_back_label = 'Back to blog';
+    include __DIR__ . '/includes/not-found.php';
 }
 
 track_blog_view($post['id']);
@@ -25,25 +20,47 @@ $related = fetch_all("SELECT * FROM blog_posts WHERE status='published' AND id<>
 $meta_title       = $post['meta_title'] ?: ($post['title'] . ' | ' . setting('site_name'));
 $meta_description = $post['meta_description']
     ?: $post['excerpt']
-    ?: mb_substr(trim(strip_tags((string)$post['content'])), 0, 160);
+    ?: meta_text($post['content'], 160);
 $canonical_url    = url('blog/' . $post['slug']);
 $og_image         = !empty($post['featured_image']) ? UPLOAD_URL . $post['featured_image'] : null;
 
+$og_type          = 'article';
+$og_extra         = [
+    'article:published_time' => date('c', strtotime($post['published_at'] ?: $post['created_at'])),
+    'article:modified_time'  => date('c', strtotime($post['updated_at'])),
+    'article:author'         => $post['author'] ?: setting('site_name'),
+];
+$word_count = str_word_count(strip_tags((string)$post['content']));
+$page_schema = [
+    [
+        '@context' => 'https://schema.org',
+        '@type' => 'BlogPosting',
+        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $canonical_url],
+        'headline' => mb_substr($post['title'], 0, 110),
+        'description' => meta_text($meta_description, 300),
+        'image' => $og_image ? [$og_image] : null,
+        'author' => ['@type' => $post['author'] ? 'Person' : 'Organization', 'name' => $post['author'] ?: setting('site_name')],
+        'publisher' => ['@id' => SITE_URL . '/#organization'],
+        'datePublished' => date('c', strtotime($post['published_at'] ?: $post['created_at'])),
+        'dateModified' => date('c', strtotime($post['updated_at'])),
+        'wordCount' => $word_count,
+        'timeRequired' => 'PT' . max(1, (int)ceil($word_count / 220)) . 'M',
+    ],
+    [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('blog')],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $post['title'], 'item' => $canonical_url],
+        ],
+    ],
+];
+
 include __DIR__ . '/includes/site-header.php';
 ?>
-<script type="application/ld+json">
-<?= json_encode([
-    '@context' => 'https://schema.org',
-    '@type' => 'BlogPosting',
-    'headline' => $post['title'],
-    'image' => $og_image ? [$og_image] : [],
-    'author' => ['@type' => 'Organization', 'name' => $post['author'] ?: setting('site_name')],
-    'datePublished' => $post['published_at'] ?: $post['created_at'],
-    'dateModified' => $post['updated_at'],
-], JSON_UNESCAPED_SLASHES) ?>
-</script>
 
-<main>
+<main id="main">
   <?php if ($post['featured_image']): ?>
   <section class="relative h-72 sm:h-96 overflow-hidden bg-ink flex items-end">
     <img src="<?= UPLOAD_URL . h($post['featured_image']) ?>" alt="<?= h($post['featured_image_alt'] ?: $post['title']) ?>" class="absolute inset-0 w-full h-full object-cover opacity-60">
